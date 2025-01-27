@@ -25,7 +25,7 @@ class AuthDataSourceImpl implements AuthDataSource {
         '/auth/login',
         data: {
           'email': email,
-          'pass': password,
+          'password': password,
         },
       );
       final token = TokenMapper.userJsonToEntity(response.data);
