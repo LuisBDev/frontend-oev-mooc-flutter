@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:oev_mobile_app/config/constants/environment.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  await Environment.initEnvironment();
+  runApp(const ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
