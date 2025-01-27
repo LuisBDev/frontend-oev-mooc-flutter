@@ -4,6 +4,7 @@ import 'package:oev_mobile_app/presentation/screens/login/providers/auth_provide
 import 'package:oev_mobile_app/presentation/screens/login/providers/login_form_provider.dart';
 
 class LoginScreen extends StatelessWidget {
+  static const String name = 'login_screen';
   const LoginScreen({super.key});
 
   @override
@@ -46,9 +47,10 @@ class _LoginForm extends ConsumerWidget {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 30),
             Center(
               child: Image.asset(
-                'assets/images/isotipo_azul.png',
+                'assets/images/logo_unmsm.png',
                 width: 92,
                 height: 92,
               ),
