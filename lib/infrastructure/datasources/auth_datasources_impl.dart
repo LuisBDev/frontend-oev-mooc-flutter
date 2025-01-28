@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:oev_mobile_app/config/constants/environment.dart';
 import 'package:oev_mobile_app/domain/datasources/auth_datasource.dart';
+import 'package:oev_mobile_app/domain/entities/dto/request/user_register_dto.dart';
 import 'package:oev_mobile_app/domain/entities/token/token_model.dart';
 import 'package:oev_mobile_app/domain/entities/user/user_model.dart';
 import 'package:oev_mobile_app/domain/errors/auth_errors.dart';
@@ -54,21 +55,23 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
-  Future<User> register(String email, String password, String name, String rol, String lastName) async {
+  Future<User> register(UserRegisterDto userRegisterDto) async {
     try {
       final response = await dio.post(
         '/auth/register',
         data: {
-          "name": name,
-          "lastName": lastName,
-          "type": rol,
-          "email": email,
-          "password": password,
+          "name": userRegisterDto.name,
+          "paternalSurname": userRegisterDto.paternalSurname,
+          "maternalSurname": userRegisterDto.maternalSurname,
+          "email": userRegisterDto.email,
+          "password": userRegisterDto.password,
+          "phone": userRegisterDto.phone,
+          "role": userRegisterDto.role.toUpperCase(),
         },
       );
       print("userinfo: ${response.data}");
       final user = UserMapper.userJsonToEntity(response.data);
-      print(user);
+      print("user: $user");
       return user;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {

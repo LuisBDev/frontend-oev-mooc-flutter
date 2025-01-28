@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/domain/entities/dto/request/user_register_dto.dart';
 import 'package:oev_mobile_app/domain/entities/token/token_model.dart';
 import 'package:oev_mobile_app/domain/errors/auth_errors.dart';
 import 'package:oev_mobile_app/domain/repositories/auth_repository.dart';
@@ -42,10 +43,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> registerUser(String email, String password, String name, String rol, String lastName) async {
+  Future<void> registerUser(UserRegisterDto userRegisterDto) async {
     try {
       state = state.copyWith(isLoading: true);
-      final user = await authRepository.register(email, password, name, rol, lastName);
+      final user = await authRepository.register(userRegisterDto);
       print('User: $user');
     } on WrongCredentials {
       // Manejar error de credenciales incorrectas
