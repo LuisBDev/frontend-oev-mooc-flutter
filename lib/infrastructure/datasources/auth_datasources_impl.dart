@@ -14,8 +14,17 @@ class AuthDataSourceImpl implements AuthDataSource {
     ),
   );
   @override
-  Future<Token> checkAuthStatus(String token) async {
-    return Token(token: token);
+  Future<Token> checkAuthStatus(Token token) async {
+    return Token(
+      id: token.id,
+      name: token.name,
+      paternalSurname: token.paternalSurname,
+      maternalSurname: token.maternalSurname,
+      email: token.email,
+      phone: token.phone,
+      role: token.role,
+      token: token.token,
+    );
   }
 
   @override

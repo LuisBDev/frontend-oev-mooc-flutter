@@ -16,7 +16,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(authProvider.notifier).logout();
+    // ref.watch(authProvider.notifier).logout();
     final appRouter = ref.watch(goRouterProvider);
     return MaterialApp.router(
       title: 'OEV App',

@@ -58,11 +58,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void checkAuthStatus() async {
-    final token = await keyValueStorageService.getValue<String>('token');
+    final token = await keyValueStorageService.getValue<Token>('token');
     if (token == null) return logout();
 
     try {
-      final token1 = await authRepository.checkAuthStatus('token');
+      final token1 = await authRepository.checkAuthStatus(token);
       _setLoggedUser(token1);
     } catch (e) {
       logout();
@@ -70,7 +70,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void _setLoggedUser(Token token) async {
-    await keyValueStorageService.setKeyValue('token', token.token);
+    await keyValueStorageService.setKeyValue('token', token);
     state = state.copyWith(
       authStatus: AuthStatus.authenticated,
       token: token,
