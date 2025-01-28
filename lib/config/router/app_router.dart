@@ -4,7 +4,7 @@ import 'package:oev_mobile_app/config/router/app_router_notifier.dart';
 import 'package:oev_mobile_app/presentation/screens/home/home_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/check_auth_status_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/login_screen.dart';
-import 'package:oev_mobile_app/presentation/screens/login/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/register/register_screen.dart';
 
 final goRouterProvider = Provider((ref) {

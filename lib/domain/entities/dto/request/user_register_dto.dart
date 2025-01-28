@@ -1,15 +1,3 @@
-// create a dto for:
-
-// {
-//   "name": "Luis",
-//   "paternalSurname": "Balarezo",
-//   "maternalSurname": "Sánchez",
-//   "email": "luis.balarezo@unmsm.edu.pe",
-//   "password": "securePassword123!",
-//   "phone": "+51987654321",
-//   "role": "STUDENT"
-// }
-
 class UserRegisterDto {
   final String name;
   final String paternalSurname;

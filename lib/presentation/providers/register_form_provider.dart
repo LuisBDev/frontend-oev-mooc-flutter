@@ -5,7 +5,7 @@ import 'package:oev_mobile_app/infrastructure/inputs/email.dart';
 import 'package:oev_mobile_app/infrastructure/inputs/name.dart';
 import 'package:oev_mobile_app/infrastructure/inputs/password.dart';
 import 'package:oev_mobile_app/infrastructure/inputs/role.dart';
-import 'package:oev_mobile_app/presentation/screens/login/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 
 final registerFormProvider = StateNotifierProvider.autoDispose<RegisterFormNotifier, RegisterFormState>((ref) {
   final registerUserCallback = ref.watch(authProvider.notifier).registerUser;
