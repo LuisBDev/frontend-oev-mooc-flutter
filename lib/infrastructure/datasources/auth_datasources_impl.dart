@@ -59,15 +59,7 @@ class AuthDataSourceImpl implements AuthDataSource {
     try {
       final response = await dio.post(
         '/auth/register',
-        data: {
-          "name": userRegisterDto.name,
-          "paternalSurname": userRegisterDto.paternalSurname,
-          "maternalSurname": userRegisterDto.maternalSurname,
-          "email": userRegisterDto.email,
-          "password": userRegisterDto.password,
-          "phone": userRegisterDto.phone,
-          "role": userRegisterDto.role.toUpperCase(),
-        },
+        data: UserRegisterDto.entityToJson(userRegisterDto),
       );
       print("userinfo: ${response.data}");
       final user = UserMapper.userJsonToEntity(response.data);

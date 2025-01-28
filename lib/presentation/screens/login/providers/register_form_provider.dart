@@ -112,7 +112,7 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
       email: state.email.value,
       password: state.password.value,
       phone: state.phone,
-      role: state.role.value,
+      role: state.role.value.toUpperCase(),
     );
 
     await registerUserCallback(userRegisterDto);
