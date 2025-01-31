@@ -12,11 +12,21 @@ class HomeScreenTest extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C),
       appBar: AppBar(
+        toolbarHeight: 80,
         backgroundColor: const Color(0xFF252836),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(17)),
         ),
-        title: const Text('Inicio', style: TextStyle(color: Colors.white)),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/logo_unmsm.png',
+              height: 50,
+            ),
+            const SizedBox(width: 10),
+            const Text('OEV Prime App', style: TextStyle(color: Colors.white)),
+          ],
+        ),
         actions: [
           CircleAvatar(
             backgroundColor: Colors.grey[700],
@@ -37,8 +47,8 @@ class HomeScreenTest extends ConsumerWidget {
         unselectedItemColor: Colors.white60,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Guardados'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Mis Cursos'),
+          BottomNavigationBarItem(icon: Icon(Icons.video_call), label: 'Conferencias'),
         ],
       ),
       body: Padding(
@@ -83,7 +93,7 @@ class HomeScreenTest extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             const Chip(
-              label: Text('Talleres', style: TextStyle(color: Colors.white)),
+              label: Text('Courses', style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.blue,
             ),
             const SizedBox(height: 20),
@@ -93,9 +103,9 @@ class HomeScreenTest extends ConsumerWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  childAspectRatio: 3 / 4,
+                  childAspectRatio: 4 / 4,
                 ),
-                itemCount: 4,
+                itemCount: 8,
                 itemBuilder: (context, index) {
                   return Container(
                     decoration: BoxDecoration(
@@ -105,30 +115,34 @@ class HomeScreenTest extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(
+                          height: 13,
+                        ),
                         Container(
-                            height: 100,
+                            height: 120,
                             decoration: BoxDecoration(
                               color: const Color(0xFF32343E),
                               borderRadius: BorderRadius.circular(12),
                               image: const DecorationImage(
-                                image: AssetImage('assets/images/photoshop_course.png'),
-                                fit: BoxFit.contain,
+                                image: AssetImage('assets/images/fisinext.png'),
+                                fit: BoxFit.cover,
                               ),
                             )),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Adobe Photoshop desde cero', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
-                              const SizedBox(height: 4),
-                              const Text('Navier Ellie Trovi', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                              const SizedBox(height: 4),
+                              Text('Spring Boot API Rest Course', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                              SizedBox(height: 4),
+                              Text('Carlos Soller', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              SizedBox(height: 4),
                               Row(
-                                children: const [
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
                                   Icon(Icons.people, size: 16, color: Colors.white70),
                                   SizedBox(width: 4),
-                                  Text('24.5k', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                  Text('24.5k', style: TextStyle(color: Colors.white, fontSize: 12)),
                                 ],
                               ),
                             ],
