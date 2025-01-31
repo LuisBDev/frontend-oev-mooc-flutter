@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/config/router/app_router_notifier.dart';
 import 'package:oev_mobile_app/presentation/screens/home/home_screen.dart';
+import 'package:oev_mobile_app/presentation/screens/home/home_screen_test.dart';
 import 'package:oev_mobile_app/presentation/screens/login/check_auth_status_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/login_screen.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
@@ -33,6 +34,11 @@ final goRouterProvider = Provider((ref) {
         name: HomeScreen.name,
         builder: (context, state) => const HomeScreen(),
       ),
+      GoRoute(
+        path: '/homeTest',
+        name: HomeScreenTest.name,
+        builder: (context, state) => const HomeScreenTest(),
+      )
     ],
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
@@ -52,7 +58,7 @@ final goRouterProvider = Provider((ref) {
 
       if (authStatus == AuthStatus.authenticated) {
         if (isGoingTo == '/login' || isGoingTo == '/register' || isGoingTo == '/splash') {
-          return '/home';
+          return '/homeTest';
         }
       }
 
