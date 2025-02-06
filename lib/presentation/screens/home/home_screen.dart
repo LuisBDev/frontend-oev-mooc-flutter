@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/course_list.dart';
+import 'package:oev_mobile_app/presentation/widgets/cursos_inscritos.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const String name = 'home_screen';
@@ -123,7 +124,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         ); // Reemplaza con tu vista
       case 1:
         return const Center(
-          child: Placeholder(),
+          child: MyCoursesList(),
         ); // Reemplaza con tu vista
       // Reemplaza con tu vista
       case 2:
