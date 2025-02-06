@@ -2,103 +2,141 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
+  static const String name = 'home_screen';
   const HomeScreen({super.key});
 
-  static const String name = 'home_screen';
+  @override
+  HomeScreenState createState() => HomeScreenState();
+}
+
+class HomeScreenState extends ConsumerState<HomeScreen> {
+  int _selectedIndex = 0;
+  bool _isLoading = true;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Bienvenido, ${ref.read(authProvider).token?.name ?? 'Usuario'}'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Aprende algo nuevo cada día',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Español',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const ListTile(
-              title: Text('Blooming Phantropies Spark'),
-              subtitle: Text('¿Qué sigue en materia de innovación en los gobiernos locales?'),
-            ),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Talleres',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Cursos',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-            ),
-            _buildCourseItem('Adobe Photoshop', 'Aigebra Lineal desde cero hasta avanzado', 'Jose Rodriguez'),
-            _buildCourseItem('Adobe Photoshop', 'desde cero hasta intermedio', 'Javier Ellie Trovi'),
-            _buildCourseItem('Adobe Photoshop', 'desde cero hasta intermedio', 'Javier Ellie Trovi'),
-            _buildCourseItem('Adobe Photoshop', 'desde cero hasta intermedio', 'Javier Ellie Trovi'),
-            _buildCourseItem('Adobe Photoshop', 'desde cero hasta avanzado', 'Javier Ellie Trovi'),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const Text(
-                    '--- Home ---',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Logout',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          ref.read(authProvider.notifier).logout();
-                        },
-                        icon: const Icon(Icons.logout_outlined),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
   }
 
-  Widget _buildCourseItem(String title, String subtitle, String instructor) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(subtitle),
-          Text(instructor),
-        ],
-      ),
-    );
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: ref.read(authProvider).token?.name ?? 'xdxd test',
+        home: Scaffold(
+          backgroundColor: const Color(0xffe1e1e2c),
+          appBar: AppBar(
+            backgroundColor: const Color(0xff2a2c3e),
+            leading: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Image.asset('assets/images/logo_unmsm.png'),
+            ), // Nuevo widget leading
+
+            actions: [
+              IconButton(
+                onPressed: () {
+                  // context.push('/profile');
+                },
+                icon: const CircleAvatar(
+                  backgroundColor: Colors.white54,
+                  child: Icon(
+                    Icons.person,
+                    color: Color(0xff2a2c3e),
+                  ),
+                ),
+              ),
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      ref.read(authProvider).token?.name ?? 'Usuario',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      ref.read(authProvider).token?.role ?? 'Role',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20), // Espaciado horizontal
+              IconButton(
+                onPressed: () {
+                  ref.read(authProvider.notifier).logout();
+                },
+                icon: const Icon(
+                  Icons.logout,
+                  color: Color(0xFFFFFFFF),
+                ),
+              ),
+            ],
+          ),
+          body: _buildBody(),
+          bottomNavigationBar: Theme(
+            data: Theme.of(context).copyWith(
+              canvasColor: const Color(0xff2a2c3e), // Color de fondo
+            ),
+            child: BottomNavigationBar(
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home, color: Colors.lightBlue),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.menu_book, color: Colors.white),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.video_call, color: Colors.white),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.school, color: Colors.white),
+                  label: '',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              showSelectedLabels: false, // No mostrar labels seleccionados
+              showUnselectedLabels: false, // No mostrar labels no seleccionados
+              // selectedFontSize: 0, // 🔹 Evita el cambio de tamaño del texto
+              // unselectedFontSize: 0, // 🔹 Evita el cambio de tamaño del texto
+              type: BottomNavigationBarType.fixed, // 🔹 Evita la animación de movimiento
+            ),
+          ),
+        ));
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return const Center(
+          // child: CursosList(),
+          child: Placeholder(),
+        ); // Reemplaza con tu vista
+      case 1:
+        return const Center(
+          child: Placeholder(),
+        ); // Reemplaza con tu vista
+      // Reemplaza con tu vista
+      case 2:
+        return const Center(
+          child: Placeholder(),
+        ); // Reemplaza con tu vista
+      case 3:
+        return const Center(
+          child: Placeholder(),
+        ); // Reemplaza con tu vista
+      default:
+        return const Center(
+          child: Text('VistaDefecto', style: TextStyle(color: Colors.white)),
+        ); // Reemplaza con tu vista
+    }
   }
 }
