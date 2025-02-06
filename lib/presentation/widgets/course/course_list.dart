@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/infrastructure/shared/course_data_test.dart';
-import 'package:oev_mobile_app/presentation/widgets/course_card.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
 
 class CourseList extends StatefulWidget {
   const CourseList({super.key});
@@ -33,7 +33,7 @@ class _CourseListState extends State<CourseList> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
-          'Aprende algo nuevo cada día',
+          'Tenemos sugerencias para ti basadas en tus intereses',
           style: TextStyle(color: Colors.white70),
         ),
         const SizedBox(
@@ -41,12 +41,13 @@ class _CourseListState extends State<CourseList> {
         ),
         Container(
           height: 180,
+          width: 410,
           decoration: BoxDecoration(
             // color: const Color(0xFF32343E),
             borderRadius: BorderRadius.circular(12),
             image: const DecorationImage(
               image: AssetImage('assets/images/image_carrusel.png'),
-              fit: BoxFit.fitHeight,
+              fit: BoxFit.fill,
             ),
           ),
         ),

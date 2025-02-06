@@ -12,7 +12,7 @@ class CourseCard extends StatelessWidget {
         // Navigator.push(
         //   context,
         //   MaterialPageRoute(
-        //     builder: (context) => CourseDetailPage(curso),
+        //     builder: (context) => CourseDetailPage(course: course),
         //   ),
         // );
       },
@@ -32,8 +32,9 @@ class CourseCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF32343E),
                   borderRadius: BorderRadius.circular(12),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/fisinext.png'),
+                  image: DecorationImage(
+                    // image: AssetImage('assets/images/fisinext.png'),
+                    image: NetworkImage(course.imageUrl!),
                     fit: BoxFit.cover,
                   ),
                 )),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
-import 'package:oev_mobile_app/presentation/widgets/course_list.dart';
-import 'package:oev_mobile_app/presentation/widgets/cursos_inscritos.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/conference_list.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/course_list.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/cursos_inscritos.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const String name = 'home_screen';
@@ -94,10 +95,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                   icon: Icon(Icons.video_call, color: Colors.white),
                   label: '',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.school, color: Colors.white),
-                  label: '',
-                ),
               ],
               currentIndex: _selectedIndex,
               onTap: (index) {
@@ -129,12 +126,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       // Reemplaza con tu vista
       case 2:
         return const Center(
-          child: Placeholder(),
+          child: ConferenceList(),
         ); // Reemplaza con tu vista
-      case 3:
-        return const Center(
-          child: Placeholder(),
-        ); // Reemplaza con tu vista
+// Reemplaza con tu vista
       default:
         return const Center(
           child: Text('VistaDefecto', style: TextStyle(color: Colors.white)),
