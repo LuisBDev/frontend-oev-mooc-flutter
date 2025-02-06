@@ -47,8 +47,8 @@ class _RegisterForm extends ConsumerWidget {
           children: [
             Center(
               child: Image.asset(
-                'assets/images/logo_unmsm.png',
-                width: 100,
+                'assets/images/oev_logo.png',
+                width: 240,
                 height: 100,
               ),
             ),
@@ -119,6 +119,7 @@ class _RegisterForm extends ConsumerWidget {
                   onChanged: ref.read(registerFormProvider.notifier).onNameChanged,
                   enableInteractiveSelection: false,
                   autofocus: true,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     errorText: registerForm.isFormPosted ? registerForm.name.errorMessage : null,
                     filled: true,
@@ -152,6 +153,7 @@ class _RegisterForm extends ConsumerWidget {
                         onChanged: ref.read(registerFormProvider.notifier).onPaternalSurnameChanged,
                         enableInteractiveSelection: false,
                         autofocus: true,
+                        onTapOutside: (event) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
                           errorText: registerForm.isFormPosted ? registerForm.name.errorMessage : null,
                           filled: true,
@@ -184,6 +186,7 @@ class _RegisterForm extends ConsumerWidget {
                         onChanged: ref.read(registerFormProvider.notifier).onMaternalSurnameChanged,
                         enableInteractiveSelection: false,
                         autofocus: true,
+                        onTapOutside: (event) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
                           errorText: registerForm.isFormPosted ? registerForm.paternalSurname.errorMessage : null,
                           filled: true,
@@ -217,6 +220,7 @@ class _RegisterForm extends ConsumerWidget {
                   onChanged: ref.read(registerFormProvider.notifier).onEmailChange,
                   enableInteractiveSelection: false,
                   autofocus: true,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     errorText: registerForm.isFormPosted ? registerForm.email.errorMessage : null,
                     filled: true,
@@ -247,6 +251,7 @@ class _RegisterForm extends ConsumerWidget {
                   onChanged: ref.read(registerFormProvider.notifier).onPasswordChanged,
                   enableInteractiveSelection: false,
                   autofocus: true,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   obscureText: true,
                   decoration: InputDecoration(
                     errorText: registerForm.isFormPosted ? registerForm.password.errorMessage : null,
@@ -280,6 +285,7 @@ class _RegisterForm extends ConsumerWidget {
                   obscureText: true,
                   enableInteractiveSelection: false,
                   autofocus: true,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     errorText: registerForm.isPasswordsMatch ? null : 'Las contraseñas no coinciden',
                     filled: true,

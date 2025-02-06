@@ -51,16 +51,16 @@ class _LoginForm extends ConsumerWidget {
             const SizedBox(height: 30),
             Center(
               child: Image.asset(
-                'assets/images/logo_unmsm.png',
-                width: 92,
-                height: 92,
+                'assets/images/oev_logo.png',
+                width: 240,
+                height: 90,
               ),
             ),
             const SizedBox(height: 40),
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'OEV MOOC App',
+                'Bienvenido - OEV App',
                 style: TextStyle(
                   color: Colors.white,
                   fontFamily: 'Open Sans',
@@ -98,6 +98,7 @@ class _LoginForm extends ConsumerWidget {
                   onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
                   enableInteractiveSelection: false,
                   autofocus: true,
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     errorText: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
                     filled: true,
@@ -133,6 +134,7 @@ class _LoginForm extends ConsumerWidget {
                         obscureText: true,
                         enableInteractiveSelection: false,
                         autofocus: true,
+                        onTapOutside: (event) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
                           errorText: loginForm.isFormPosted ? loginForm.password.errorMessage : null,
                           filled: true,

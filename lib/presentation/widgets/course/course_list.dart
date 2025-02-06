@@ -3,14 +3,14 @@ import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/infrastructure/shared/course_data_test.dart';
 import 'package:oev_mobile_app/presentation/widgets/course_card.dart';
 
-class MyCoursesList extends StatefulWidget {
-  const MyCoursesList({super.key});
+class CourseList extends StatefulWidget {
+  const CourseList({super.key});
 
   @override
-  State<MyCoursesList> createState() => _MyCoursesListState();
+  State<CourseList> createState() => _CourseListState();
 }
 
-class _MyCoursesListState extends State<MyCoursesList> {
+class _CourseListState extends State<CourseList> {
   String _searchTerm = '';
   bool _isLoading = false;
   List<Course> _courses = courseList();
@@ -28,6 +28,28 @@ class _MyCoursesListState extends State<MyCoursesList> {
     return Column(
       children: [
         const SizedBox(height: 20),
+        const Text(
+          'Bienvenido, Luis',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        const Text(
+          'Aprende algo nuevo cada día',
+          style: TextStyle(color: Colors.white70),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        Container(
+          height: 180,
+          decoration: BoxDecoration(
+            // color: const Color(0xFF32343E),
+            borderRadius: BorderRadius.circular(12),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/image_carrusel.png'),
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -43,8 +65,9 @@ class _MyCoursesListState extends State<MyCoursesList> {
                 });
               },
               style: const TextStyle(color: Colors.white),
+              onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
-                  hintText: 'Buscar por curso o profesor',
+                  hintText: 'Buscar por curso',
                   hintStyle: TextStyle(color: Colors.grey),
                   prefixIcon: Icon(Icons.search),
                   filled: true,
@@ -69,50 +92,22 @@ class _MyCoursesListState extends State<MyCoursesList> {
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : ListView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 0, 40, 8),
-                      child: Builder(
-                        builder: (BuildContext context) {
-                          if (filteredCourses.isEmpty) {
-                            return const Center(
-                              child: Column(
-                                children: <Widget>[
-                                  Text('No se encontraron cursos', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Column(
-                              children: [
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Wrap(
-                                    children: [
-                                      ...filteredCourses.map((curso) => Column(
-                                            children: [
-                                              CursoCard(curso),
-                                              const SizedBox(
-                                                height: 25,
-                                              )
-                                            ],
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                        },
-                      ),
-                    )
-                  ],
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 4 / 4,
+                    ),
+                    itemCount: filteredCourses.length,
+                    itemBuilder: (context, index) {
+                      return CourseCard(course: filteredCourses[index]);
+                    },
+                  ),
                 ),
-        )
+        ),
       ],
     );
   }
