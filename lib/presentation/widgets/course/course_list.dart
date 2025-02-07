@@ -23,14 +23,18 @@ class _CourseListState extends State<CourseList> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    var filteredCourses = _courses.where((curso) => curso.name.toLowerCase().contains(_searchTerm.toLowerCase())).toList();
+    var filteredCourses = _courses
+        .where((curso) =>
+            curso.name.toLowerCase().contains(_searchTerm.toLowerCase()))
+        .toList();
 
     return Column(
       children: [
         const SizedBox(height: 20),
         const Text(
-          'Bienvenido, Luis',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          'Bienvenido, Karlo',
+          style: TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           'Tenemos sugerencias para ti basadas en tus intereses',
@@ -87,7 +91,11 @@ class _CourseListState extends State<CourseList> {
           padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Align(
             alignment: Alignment.topLeft,
-            child: Text('Cursos', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text('Cursos',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold)),
           ),
         ),
         Expanded(
@@ -96,15 +104,21 @@ class _CourseListState extends State<CourseList> {
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 4 / 4,
+                      childAspectRatio: 4 / 4.6,
                     ),
                     itemCount: filteredCourses.length,
                     itemBuilder: (context, index) {
-                      return CourseCard(course: filteredCourses[index]);
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          CourseCard(course: filteredCourses[index]),
+                        ],
+                      );
                     },
                   ),
                 ),
