@@ -5,6 +5,7 @@ import 'package:oev_mobile_app/presentation/screens/home/home_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/check_auth_status_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/login_screen.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/screens/profile/profile_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/register/register_screen.dart';
 
 final goRouterProvider = Provider((ref) {
@@ -32,6 +33,11 @@ final goRouterProvider = Provider((ref) {
         path: '/home',
         name: HomeScreen.name,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        name: ProfileScreen.name,
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
     redirect: (context, state) {
