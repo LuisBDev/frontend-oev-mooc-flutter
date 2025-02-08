@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/infrastructure/shared/course_data_test.dart';
+import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
 
-class CourseList extends StatefulWidget {
+class CourseList extends ConsumerStatefulWidget {
   const CourseList({super.key});
 
   @override
-  State<CourseList> createState() => _CourseListState();
+  ConsumerState<CourseList> createState() => _CourseListState();
 }
 
-class _CourseListState extends State<CourseList> {
+class _CourseListState extends ConsumerState<CourseList> {
   String _searchTerm = '';
   bool _isLoading = false;
   List<Course> _courses = courseList();
@@ -31,9 +33,9 @@ class _CourseListState extends State<CourseList> {
     return Column(
       children: [
         const SizedBox(height: 20),
-        const Text(
-          'Bienvenido, Karlo',
-          style: TextStyle(
+        Text(
+          'Bienvenido, ${ref.read(authProvider).token?.name}',
+          style: const TextStyle(
               fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
@@ -72,18 +74,19 @@ class _CourseListState extends State<CourseList> {
               style: const TextStyle(color: Colors.white),
               onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
-                  hintText: 'Buscar por curso',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  prefixIcon: Icon(Icons.search),
-                  filled: true,
-                  fillColor: Color(0xff343646),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  )),
+                hintText: 'Buscar por curso',
+                hintStyle: TextStyle(color: Colors.grey),
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Color(0xff343646),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                ),
+              ),
             ),
           ),
         ),
