@@ -8,7 +8,8 @@ List<Course> courseList() {
       description: 'Un curso introductorio',
       benefits: 'Desarrollarás habilidades en Java.',
       targetAudience: 'Estudiantes principiantes en programación.',
-      imageUrl: 'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
+      imageUrl:
+          'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
       category: 'Programación',
       level: 'Básico',
       price: 49.99,
@@ -27,7 +28,8 @@ List<Course> courseList() {
       description: 'Aprende a desarrollar apps con Flutter.',
       benefits: 'Construirás aplicaciones móviles multiplataforma.',
       targetAudience: 'Desarrolladores que quieran aprender Flutter.',
-      imageUrl: 'https://prod-discovery.edx-cdn.org/media/course/image/1d806edf-67a7-47c1-aa89-012702eba0d8-a5fc18765bdd.jpeg',
+      imageUrl:
+          'https://prod-discovery.edx-cdn.org/media/course/image/1d806edf-67a7-47c1-aa89-012702eba0d8-a5fc18765bdd.jpeg',
       category: 'Desarrollo Móvil',
       level: 'Intermedio',
       price: 59.99,
@@ -46,7 +48,8 @@ List<Course> courseList() {
       description: 'Domina el aprendizaje automático con Python.',
       benefits: 'Aprenderás técnicas de machine learning.',
       targetAudience: 'Científicos de datos y desarrolladores.',
-      imageUrl: 'https://kistec.ac.ug/wp-content/uploads/2022/02/GRU-IT-PICK.jpeg',
+      imageUrl:
+          'https://kistec.ac.ug/wp-content/uploads/2022/02/GRU-IT-PICK.jpeg',
       category: 'Inteligencia Artificial',
       level: 'Avanzado',
       price: 99.99,
@@ -65,7 +68,8 @@ List<Course> courseList() {
       description: 'Crea diseños web con Figma.',
       benefits: 'Desarrollarás habilidades en diseño web.',
       targetAudience: 'Diseñadores y desarrolladores web.',
-      imageUrl: 'https://imageio.forbes.com/specials-images/imageserve/66827d52a65f2b36f9c14f28/Backend-software-developer---flat-design/960x0.jpg?format=jpg&width=960',
+      imageUrl:
+          'https://imageio.forbes.com/specials-images/imageserve/66827d52a65f2b36f9c14f28/Backend-software-developer---flat-design/960x0.jpg?format=jpg&width=960',
       category: 'Diseño',
       level: 'Intermedio',
       price: 69.99,
@@ -84,7 +88,8 @@ List<Course> courseList() {
       description: 'Aprende a crear videojuegos con Unity.',
       benefits: 'Desarrollarás habilidades en desarrollo de videojuegos.',
       targetAudience: 'Desarrolladores interesados en videojuegos.',
-      imageUrl: 'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
+      imageUrl:
+          'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
       category: 'Desarrollo de Videojuegos',
       level: 'Intermedio',
       price: 79.99,
@@ -103,7 +108,8 @@ List<Course> courseList() {
       description: 'Conoce los fundamentos de la ciberseguridad.',
       benefits: 'Aprenderás a proteger sistemas y redes.',
       targetAudience: 'Profesionales de TI y entusiastas de la seguridad.',
-      imageUrl: 'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
+      imageUrl:
+          'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
       category: 'Ciberseguridad',
       level: 'Básico',
       price: 89.99,
@@ -122,7 +128,8 @@ List<Course> courseList() {
       description: 'Aprende a desarrollar aplicaciones web con React.',
       benefits: 'Desarrollarás habilidades en desarrollo web moderno.',
       targetAudience: 'Desarrolladores web y front-end.',
-      imageUrl: 'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
+      imageUrl:
+          'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
       category: 'Desarrollo Web',
       level: 'Intermedio',
       price: 69.99,
@@ -141,7 +148,8 @@ List<Course> courseList() {
       description: 'Domina el análisis de datos con R.',
       benefits: 'Aprenderás técnicas avanzadas de análisis de datos.',
       targetAudience: 'Analistas de datos y científicos de datos.',
-      imageUrl: 'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
+      imageUrl:
+          'https://www.acacia.edu/wp-content/uploads/2023/06/acacia-blog-image-1024x578.jpg',
       category: 'Análisis de Datos',
       level: 'Avanzado',
       price: 99.99,
