@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/conference/conference_list.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_list.dart';
@@ -39,7 +40,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             actions: [
               IconButton(
                 onPressed: () {
-                  // context.push('/profile');
+                  context.push('/profile');
                 },
                 icon: const CircleAvatar(
                   backgroundColor: Colors.white54,
