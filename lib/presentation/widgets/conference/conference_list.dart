@@ -118,8 +118,9 @@ class _ConferenceListState extends State<ConferenceList> {
                 });
               },
               style: const TextStyle(color: Colors.white),
+              onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
-                hintText: 'Buscar por conferencia o profesor',
+                hintText: 'Buscar por conferencia',
                 hintStyle: TextStyle(color: Colors.grey),
                 prefixIcon: Icon(Icons.search),
                 filled: true,
@@ -135,7 +136,9 @@ class _ConferenceListState extends State<ConferenceList> {
             ),
           ),
         ),
-
+        const SizedBox(
+          height: 20,
+        ),
         // 📜 Lista de Cursos
         Expanded(
           child: _isLoading

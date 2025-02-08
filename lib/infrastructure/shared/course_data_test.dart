@@ -4,7 +4,7 @@ List<Course> courseList() {
   return [
     Course(
       id: 1,
-      name: 'Introducción a Java',
+      name: 'Introducción a Java asdsa dsad asds',
       description: 'Un curso introductorio',
       benefits: 'Desarrollarás habilidades en Java.',
       targetAudience: 'Estudiantes principiantes en programación.',

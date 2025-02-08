@@ -117,6 +117,7 @@ class _MyCoursesListState extends State<MyCoursesList> {
                 });
               },
               style: const TextStyle(color: Colors.white),
+              onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
                 hintText: 'Buscar por curso o profesor',
                 hintStyle: TextStyle(color: Colors.grey),
