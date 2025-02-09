@@ -14,8 +14,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool isEditing = false;
-  bool isDarkMode = true;
+  bool isEditing = false; 
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController nameController;
@@ -54,11 +53,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (token == null) return;
 
     final userData = {
+      'id': token.id, // Add the id field
       'name': nameController.text,
       'paternalSurname': paternalSurnameController.text,
       'maternalSurname': maternalSurnameController.text,
       'email': emailController.text,
       'phone': phoneController.text,
+      'role': token.role, // Add the role field
     };
 
     try {
@@ -80,7 +81,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     }
   }
-
+  
   Future<bool> _onWillPop() async {
     if (isEditing) {
       final shouldPop = await showDialog<bool>(
