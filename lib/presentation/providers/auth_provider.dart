@@ -52,7 +52,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Manejar error de credenciales incorrectas
     } on ConnectionTimeout {
       // Manejar error de tiempo de conexión
-    } catch (e) {
     } finally {
       state = state.copyWith(isLoading: false);
     }
@@ -79,14 +78,39 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
-  Future<void> logout([String? errorMessage]) async {
-    await keyValueStorageService.removeKey('token');
+  // New method to update token after profile update
+  Future<void> updateToken(Token updatedToken) async {
+    try {
+      // Update token in storage
+      await keyValueStorageService.setKeyValue('token', updatedToken);
+      
+      // Update state with new token
+      state = state.copyWith(
+        token: updatedToken,
+        errorMessage: '',
+      );
+    } catch (e) {
+      print('Error updating token: $e');
+      // Optionally handle error, but don't logout since the update might have succeeded
+      state = state.copyWith(
+        errorMessage: 'Error actualizando datos locales',
+      );
+    }
+  }
 
-    state = state.copyWith(
-      authStatus: AuthStatus.notAuthenticated,
-      token: null,
-      errorMessage: errorMessage,
-    );
+  // Updated logout method to handle both normal logout and error cases
+  Future<void> logout([String? errorMessage]) async {
+    try {
+      await keyValueStorageService.removeKey('token');
+    } catch (e) {
+      print('Error removing token: $e');
+    } finally {
+      state = state.copyWith(
+        authStatus: AuthStatus.notAuthenticated,
+        token: null,
+        errorMessage: errorMessage,
+      );
+    }
   }
 }
 
@@ -97,14 +121,12 @@ class AuthState {
   final Token? token;
   final String errorMessage;
   final bool isLoading;
-  // Nueva variable para el estado de registro
 
   AuthState({
     this.authStatus = AuthStatus.checking,
     this.token,
     this.errorMessage = '',
     this.isLoading = false,
-    // Valor inicial de isRegistered
   });
 
   AuthState copyWith({
@@ -112,14 +134,12 @@ class AuthState {
     Token? token,
     String? errorMessage,
     bool? isLoading,
-    // Añadir isRegistered a copyWith
   }) {
     return AuthState(
       authStatus: authStatus ?? this.authStatus,
       token: token ?? this.token,
       errorMessage: errorMessage ?? this.errorMessage,
       isLoading: isLoading ?? this.isLoading,
-      // Copiar isRegistered
     );
   }
 }

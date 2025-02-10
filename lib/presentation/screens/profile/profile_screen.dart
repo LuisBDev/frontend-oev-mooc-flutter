@@ -14,7 +14,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool isEditing = false; 
+  bool isEditing = false;
+  bool isDarkMode = true;
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController nameController;
@@ -53,19 +54,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (token == null) return;
 
     final userData = {
-      'id': token.id, // Add the id field
+      'id': token.id, // Add the id field to match the required schema
       'name': nameController.text,
       'paternalSurname': paternalSurnameController.text,
       'maternalSurname': maternalSurnameController.text,
       'email': emailController.text,
       'phone': phoneController.text,
-      'role': token.role, // Add the role field
     };
 
     try {
-      await ref
-          .read(userUpdateProvider.notifier)
-          .updateUser(token.id, userData);
+      await ref.read(userUpdateProvider.notifier).updateUser(token.id, userData);
+      
+      // Update the auth token with new user data
+      final updatedToken = token.copyWith(
+        name: nameController.text,
+        paternalSurname: paternalSurnameController.text,
+        maternalSurname: maternalSurnameController.text,
+        email: emailController.text,
+        phone: phoneController.text,
+      );
+      ref.read(authProvider.notifier).updateToken(updatedToken);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil actualizado exitosamente')),
@@ -75,13 +84,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error al actualizar el perfil: ${e.toString()}')),
+          SnackBar(content: Text('Error al actualizar el perfil: ${e.toString()}')),
         );
       }
     }
   }
-  
+
   Future<bool> _onWillPop() async {
     if (isEditing) {
       final shouldPop = await showDialog<bool>(
