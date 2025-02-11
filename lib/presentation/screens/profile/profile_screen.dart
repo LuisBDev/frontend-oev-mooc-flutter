@@ -47,68 +47,69 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _saveChanges() async {
-    if (!_formKey.currentState!.validate()) return;
+Future<void> _saveChanges() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    final token = ref.read(authProvider).token;
-    if (token == null) return;
+  final token = ref.read(authProvider).token;
+  if (token == null) return;
 
-    try {
-      // Mostrar indicador de carga
-      setState(() => isLoading = true);
+  try {
+    setState(() => isLoading = true);
 
-      final userData = {
-        'id': token.id,
-        'name': nameController.text.trim(),
-        'paternalSurname': paternalSurnameController.text.trim(),
-        'maternalSurname': maternalSurnameController.text.trim(),
-        'email': emailController.text.trim(),
-        'phone': phoneController.text.trim()
-      };
+    final userData = {
+      'id': token.id,  
+      'name': nameController.text.trim(),
+      'paternalSurname': paternalSurnameController.text.trim(),
+      'maternalSurname': maternalSurnameController.text.trim(),
+      'email': emailController.text.trim(),
+      'phone': phoneController.text.trim()
+    };
 
-      // Debug log
-      print('Sending update request with data: $userData');
+    print('Sending update request with data: $userData');
 
-      await ref
-          .read(userUpdateProvider.notifier)
-          .updateUser(token.id, userData);
+        // Pasamos el token.token aquí
+    await ref.read(userUpdateProvider.notifier).updateUser(
+      token.id,
+      userData,
+      token.token, // Pasamos el token de autenticación
+    );
+    
+    final updatedToken = token.copyWith(
+      name: nameController.text.trim(),
+      paternalSurname: paternalSurnameController.text.trim(),
+      maternalSurname: maternalSurnameController.text.trim(),
+      email: emailController.text.trim(),
+      phone: phoneController.text.trim(),
+    );
+    
+    await ref.read(authProvider.notifier).updateToken(updatedToken);
 
-      final updatedToken = token.copyWith(
-        name: nameController.text.trim(),
-        paternalSurname: paternalSurnameController.text.trim(),
-        maternalSurname: maternalSurnameController.text.trim(),
-        email: emailController.text.trim(),
-        phone: phoneController.text.trim(),
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Perfil actualizado exitosamente'),
+          backgroundColor: Colors.green,
+        ),
       );
-
-      await ref.read(authProvider.notifier).updateToken(updatedToken);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Perfil actualizado exitosamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        setState(() {
-          isEditing = false;
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error in _saveChanges: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al actualizar el perfil: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-        setState(() => isLoading = false);
-      }
+      setState(() {
+        isEditing = false;
+        isLoading = false;
+      });
+    }
+  } catch (e) {
+    print('Error in _saveChanges: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al actualizar el perfil: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      setState(() => isLoading = false);
     }
   }
+}
 
   Future<bool> _onWillPop() async {
     if (isEditing) {

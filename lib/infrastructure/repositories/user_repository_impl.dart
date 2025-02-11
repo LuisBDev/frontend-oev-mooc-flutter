@@ -10,7 +10,7 @@ class UserRepositoryImpl implements UserRepository {
       : dataSource = dataSource ?? UserDataSourceImpl();
 
   @override
-  Future<User> updateUser(int id, Map<String, dynamic> userData) {
-    return dataSource.updateUser(id, userData);
+  Future<User> updateUser(int id, Map<String, dynamic> userData, String token) {
+    return dataSource.updateUser(id, userData, token);
   }
 }
