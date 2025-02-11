@@ -20,10 +20,15 @@ class UserUpdateNotifier extends StateNotifier<AsyncValue<void>> {
   Future<void> updateUser(int id, Map<String, dynamic> userData) async {
     state = const AsyncValue.loading();
     try {
-      await _repository.updateUser(id, userData);
-      state = const AsyncValue.data(null);
+      final result = await _repository.updateUser(id, userData);
+      if (result != null) {
+        state = const AsyncValue.data(null);
+      } else {
+        throw Exception('No se pudo actualizar el usuario');
+      }
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
+      throw error; // Re-lanza el error para manejarlo en la UI
     }
   }
 }

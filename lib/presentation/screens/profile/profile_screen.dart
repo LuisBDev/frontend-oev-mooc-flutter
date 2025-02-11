@@ -47,48 +47,54 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _saveChanges() async {
-    if (!_formKey.currentState!.validate()) return;
+Future<void> _saveChanges() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    final token = ref.read(authProvider).token;
-    if (token == null) return;
+  final token = ref.read(authProvider).token;
+  if (token == null) return;
 
-    final userData = {
-      'id': token.id, // Add the id field to match the required schema
-      'name': nameController.text,
-      'paternalSurname': paternalSurnameController.text,
-      'maternalSurname': maternalSurnameController.text,
-      'email': emailController.text,
-      'phone': phoneController.text,
-    };
+  // Asegúrate de que los datos coincidan exactamente con el schema esperado
+  final userData = {
+    'id': token.id,
+    'name': nameController.text.trim(),
+    'paternalSurname': paternalSurnameController.text.trim(),
+    'maternalSurname': maternalSurnameController.text.trim(),
+    'email': emailController.text.trim(),
+    'phone': phoneController.text.trim()
+  };
 
-    try {
-      await ref.read(userUpdateProvider.notifier).updateUser(token.id, userData);
-      
-      // Update the auth token with new user data
-      final updatedToken = token.copyWith(
-        name: nameController.text,
-        paternalSurname: paternalSurnameController.text,
-        maternalSurname: maternalSurnameController.text,
-        email: emailController.text,
-        phone: phoneController.text,
+  try {
+    // Primero actualiza en el backend
+    await ref.read(userUpdateProvider.notifier).updateUser(token.id, userData);
+    
+    // Si la actualización en el backend fue exitosa, actualiza el token local
+    final updatedToken = token.copyWith(
+      name: nameController.text.trim(),
+      paternalSurname: paternalSurnameController.text.trim(),
+      maternalSurname: maternalSurnameController.text.trim(),
+      email: emailController.text.trim(),
+      phone: phoneController.text.trim(),
+    );
+    
+    await ref.read(authProvider.notifier).updateToken(updatedToken);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Perfil actualizado exitosamente')),
       );
-      ref.read(authProvider.notifier).updateToken(updatedToken);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado exitosamente')),
-        );
-        setState(() => isEditing = false);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualizar el perfil: ${e.toString()}')),
-        );
-      }
+      setState(() => isEditing = false);
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al actualizar el perfil: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
 
   Future<bool> _onWillPop() async {
     if (isEditing) {
