@@ -77,11 +77,20 @@ class CourseList extends ConsumerWidget {
             child: Text('Cursos', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ),
-        IconButton(
-            onPressed: () {
-              context.push('/course/create');
-            },
-            icon: Icon(Icons.add)),
+        ref.read(authProvider).token?.role == 'INSTRUCTOR'
+            ? Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.push('/course/create');
+                  },
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Text('Crear Curso'), Icon(Icons.add)],
+                  ),
+                ),
+              )
+            : const SizedBox(),
+        const SizedBox(height: 10),
         Expanded(
           child: asyncCourses.when(
             data: (courses) {
