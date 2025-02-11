@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/dto/request/user_register_dto.dart';
 import 'package:oev_mobile_app/domain/entities/token/token_model.dart';
@@ -112,6 +114,44 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
     }
   }
+
+  Future<String> getValidToken() async {
+  final currentToken = state.token;
+  if (currentToken == null) {
+    throw NotAuthorizedException('No hay sesión activa');
+  }
+
+  // Verificar si el token está próximo a expirar (5 minutos antes)
+  final exp = _getTokenExpiration(currentToken.token);
+  if (exp != null && DateTime.now().isAfter(exp.subtract(Duration(minutes: 5)))) {
+    // Intentar renovar el token
+    try {
+      final newToken = await authRepository.checkAuthStatus(currentToken);
+      await updateToken(newToken);
+      return newToken.token;
+    } catch (e) {
+      await logout('Sesión expirada');
+      throw NotAuthorizedException('Sesión expirada');
+    }
+  }
+
+  return currentToken.token;
+}
+  DateTime? _getTokenExpiration(String token) {
+  try {
+    final parts = token.split('.');
+    if (parts.length != 3) return null;
+    
+    final payload = json.decode(
+      utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+    );
+    
+    return DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
+  } catch (e) {
+    print('Error decodificando token: $e');
+    return null;
+  }
+}
 }
 
 enum AuthStatus { checking, authenticated, notAuthenticated }

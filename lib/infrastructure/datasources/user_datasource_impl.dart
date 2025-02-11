@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:oev_mobile_app/config/constants/environment.dart';
 import 'package:oev_mobile_app/domain/datasources/user_datasource.dart';
 import 'package:oev_mobile_app/domain/entities/user/user_model.dart';
+import 'package:oev_mobile_app/domain/errors/auth_errors.dart';
 import 'package:oev_mobile_app/infrastructure/mappers/user_mapper.dart'; 
 
 class UserDataSourceImpl implements UserDataSource {
@@ -29,17 +30,19 @@ class UserDataSourceImpl implements UserDataSource {
         'email': userData['email'] as String,
         'phone': userData['phone'] as String,
       };
+          // Asegurarse de que el token tenga el formato correcto
+      final String bearerToken = token.startsWith('Bearer ') ? token : 'Bearer $token';
       print('Update data: $formattedData');
       print('Using token: $token'); // Para debug
-
+      print('Using bearerToken: $bearerToken'); 
+      
       final response = await dio.put(
         '/user/update/$numericId',
         data: formattedData,
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer $token', // Agregamos el token de autorización
+            'Authorization': bearerToken, // Agregamos el token de autorización
           },
           validateStatus: (status) {
             return status != null && status < 500;
@@ -50,8 +53,8 @@ class UserDataSourceImpl implements UserDataSource {
       print('Response status: ${response.statusCode}');
       print('Response data: ${response.data}');
 
-      if (response.statusCode == 403) {
-        throw Exception('No autorizado. Por favor, vuelve a iniciar sesión.');
+      if (response.statusCode == 401 || response.statusCode == 403) {
+      throw NotAuthorizedException('Sesión expirada o inválida');
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -69,7 +72,7 @@ class UserDataSourceImpl implements UserDataSource {
       print('DioError message: ${e.message}');
       print('DioError response: ${e.response?.data}');
 
-      if (e.response?.statusCode == 403) {
+      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
         throw Exception('No autorizado. Por favor, vuelve a iniciar sesión.');
       }
 

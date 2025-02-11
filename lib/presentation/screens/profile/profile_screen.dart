@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oev_mobile_app/domain/errors/auth_errors.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/user_provider.dart';
 
@@ -51,10 +52,22 @@ Future<void> _saveChanges() async {
   if (!_formKey.currentState!.validate()) return;
 
   final token = ref.read(authProvider).token;
-  if (token == null) return;
+  if (token == null) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No hay sesión activa. Por favor, vuelve a iniciar sesión.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+    return;
+  }
 
   try {
     setState(() => isLoading = true);
+    // Obtener un token válido
+    final validToken = await ref.read(authProvider.notifier).getValidToken();
 
     final userData = {
       'id': token.id,  
@@ -71,7 +84,7 @@ Future<void> _saveChanges() async {
     await ref.read(userUpdateProvider.notifier).updateUser(
       token.id,
       userData,
-      token.token, // Pasamos el token de autenticación
+      validToken, // Pasamos el token de autenticación
     );
     
     final updatedToken = token.copyWith(
@@ -95,6 +108,17 @@ Future<void> _saveChanges() async {
         isEditing = false;
         isLoading = false;
       });
+    }
+  } on NotAuthorizedException catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+      // Redirigir al home
+      context.go('/home');
     }
   } catch (e) {
     print('Error in _saveChanges: $e');
