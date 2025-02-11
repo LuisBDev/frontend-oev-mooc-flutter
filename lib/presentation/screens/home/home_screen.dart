@@ -147,7 +147,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         );
       case 1:
         return const Center(
-          child: MyCoursesList(),
+          child: MyCourses(),
         );
       case 2:
         return const Center(

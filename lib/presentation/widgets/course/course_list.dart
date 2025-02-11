@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oev_mobile_app/config/router/app_router.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
@@ -18,12 +17,13 @@ class CourseList extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final asyncCourses = ref.watch(coursesProvider);
     final searchQuery = ref.watch(searchQueryProvider);
+    final loggedUser = ref.read(authProvider).token;
 
     return Column(
       children: [
         const SizedBox(height: 20),
         Text(
-          'Bienvenido, ${ref.read(authProvider).token?.name}',
+          'Bienvenido, ${loggedUser?.name ?? 'User'}',
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
@@ -70,26 +70,37 @@ class CourseList extends ConsumerWidget {
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Text('Cursos', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Text(
+                'Cursos',
+                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                onPressed: () => {
+                  ref.refresh(coursesProvider),
+                },
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              ),
+            ],
           ),
         ),
-        ref.read(authProvider).token?.role == 'INSTRUCTOR'
-            ? Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/course/create');
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Text('Crear Curso'), Icon(Icons.add)],
-                  ),
+        Visibility(
+            visible: loggedUser!.role == 'INSTRUCTOR',
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push('/course/create');
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [Text('Crear Curso'), Icon(Icons.add)],
                 ),
-              )
-            : const SizedBox(),
+              ),
+            )),
         const SizedBox(height: 10),
         Expanded(
           child: asyncCourses.when(
