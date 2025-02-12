@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/dto/request/user_register_dto.dart';
 import 'package:oev_mobile_app/domain/entities/token/token_model.dart';
@@ -31,6 +33,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
+      state = state.copyWith(isLoading: true);
       final token = await authRepository.login(email, password);
       print('token loginUser: $token');
       _setLoggedUser(token);
@@ -40,6 +43,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       logout('Timeout de conexión');
     } catch (e) {
       logout('Error desconocido');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -52,7 +57,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Manejar error de credenciales incorrectas
     } on ConnectionTimeout {
       // Manejar error de tiempo de conexión
-    } catch (e) {
     } finally {
       state = state.copyWith(isLoading: false);
     }
@@ -70,23 +74,88 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void _setLoggedUser(Token token) async {
-    await keyValueStorageService.setKeyValue('token', token);
-    state = state.copyWith(
-      authStatus: AuthStatus.authenticated,
-      token: token,
-      errorMessage: '',
-    );
+  Future<void> _setLoggedUser(Token token) async {
+    try {
+      await keyValueStorageService.setKeyValue('token', token);
+      state = state.copyWith(
+        authStatus: AuthStatus.authenticated,
+        token: token,
+        errorMessage: '',
+      );
+    } catch (e) {
+      print('Error setting logged user: $e');
+      logout('Error al guardar la sesión');
+    }
   }
 
-  Future<void> logout([String? errorMessage]) async {
-    await keyValueStorageService.removeKey('token');
+  // New method to update token after profile update
+  Future<void> updateToken(Token updatedToken) async {
+    try {
+      await keyValueStorageService.setKeyValue('token', updatedToken);
+      state = state.copyWith(
+        token: updatedToken,
+        errorMessage: '',
+      );
+    } catch (e) {
+      print('Error updating token: $e');
+      state = state.copyWith(
+        errorMessage: 'Error actualizando datos locales',
+      );
+    }
+  }
 
-    state = state.copyWith(
-      authStatus: AuthStatus.notAuthenticated,
-      token: null,
-      errorMessage: errorMessage,
-    );
+  // Updated logout method to handle both normal logout and error cases
+  Future<void> logout([String? errorMessage]) async {
+    try {
+      await keyValueStorageService.removeKey('token');
+    } catch (e) {
+      print('Error removing token: $e');
+    } finally {
+      state = state.copyWith(
+        authStatus: AuthStatus.notAuthenticated,
+        token: null,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+
+  Future<String> getValidToken() async {
+    final currentToken = state.token;
+    if (currentToken == null) {
+      throw NotAuthorizedException('No hay sesión activa');
+    }
+
+    // Verificar si el token está próximo a expirar (5 minutos antes)
+    final exp = _getTokenExpiration(currentToken.token);
+    if (exp != null &&
+        DateTime.now().isAfter(exp.subtract(Duration(minutes: 5)))) {
+      // Intentar renovar el token
+      try {
+        final newToken = await authRepository.checkAuthStatus(currentToken);
+        await updateToken(newToken);
+        return newToken.token;
+      } catch (e) {
+        await logout('Sesión expirada');
+        throw NotAuthorizedException('Sesión expirada');
+      }
+    }
+
+    return currentToken.token;
+  }
+
+  DateTime? _getTokenExpiration(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final payload = json
+          .decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+
+      return DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
+    } catch (e) {
+      print('Error decodificando token: $e');
+      return null;
+    }
   }
 }
 
@@ -97,14 +166,12 @@ class AuthState {
   final Token? token;
   final String errorMessage;
   final bool isLoading;
-  // Nueva variable para el estado de registro
 
   AuthState({
     this.authStatus = AuthStatus.checking,
     this.token,
     this.errorMessage = '',
     this.isLoading = false,
-    // Valor inicial de isRegistered
   });
 
   AuthState copyWith({
@@ -112,14 +179,12 @@ class AuthState {
     Token? token,
     String? errorMessage,
     bool? isLoading,
-    // Añadir isRegistered a copyWith
   }) {
     return AuthState(
       authStatus: authStatus ?? this.authStatus,
       token: token ?? this.token,
       errorMessage: errorMessage ?? this.errorMessage,
       isLoading: isLoading ?? this.isLoading,
-      // Copiar isRegistered
     );
   }
 }
