@@ -11,21 +11,24 @@ final coursesProvider = FutureProvider.autoDispose<List<Course>>((ref) async {
   return repository.getCourses();
 });
 
-final courseByIdProvider =
-    FutureProvider.family.autoDispose<Course, int>((ref, courseId) async {
+final coursesPublishedByInstructorProvider = FutureProvider.autoDispose<List<Course>>((ref) async {
+  final repository = ref.watch(courseRepositoryProvider);
+  final auth = ref.watch(authProvider);
+  return repository.getCoursesPublishedByInstructor(auth.token!.id);
+});
+
+final courseByIdProvider = FutureProvider.family.autoDispose<Course, int>((ref, courseId) async {
   final repository = ref.watch(courseRepositoryProvider);
   return repository.getCourseById(courseId);
 });
 
-final enrolledCoursesProvider =
-    FutureProvider.autoDispose<List<CourseEnrolled>>((ref) async {
+final enrolledCoursesProvider = FutureProvider.autoDispose<List<CourseEnrolled>>((ref) async {
   final repository = ref.watch(courseRepositoryProvider);
   final auth = ref.watch(authProvider);
   return repository.getEnrolledCourses(auth.token!.id);
 });
 
-final addCourseProvider =
-    StateNotifierProvider<AddCourseNotifier, AsyncValue<void>>((ref) {
+final addCourseProvider = StateNotifierProvider<AddCourseNotifier, AsyncValue<void>>((ref) {
   final repository = ref.watch(courseRepositoryProvider);
   return AddCourseNotifier(repository);
 });

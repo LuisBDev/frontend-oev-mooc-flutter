@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
@@ -16,6 +17,7 @@ class MyCourses extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final enrolledCoursesAsync = ref.watch(enrolledCoursesProvider);
+    final publishedCoursesAsync = ref.watch(coursesPublishedByInstructorProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final loggedUser = ref.read(authProvider).token;
 
@@ -79,32 +81,126 @@ class MyCourses extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         Expanded(
-          child: enrolledCoursesAsync.when(
-            data: (courses) {
-              // Filtrar los cursos según el término de búsqueda
-              final filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+          child: loggedUser.role == 'STUDENT' || loggedUser.role == 'ADMINISTRATIVE'
+              ? enrolledCoursesAsync.when(
+                  data: (courses) {
+                    // Filtrar los cursos según el término de búsqueda
+                    final filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase())).toList();
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 4 / 4.6,
-                  ),
-                  itemCount: filteredCourses.length,
-                  itemBuilder: (context, index) {
-                    return _EnrolledCourseCard(enrolledCourse: filteredCourses[index]);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 4 / 4.6,
+                        ),
+                        itemCount: filteredCourses.length,
+                        itemBuilder: (context, index) {
+                          return _EnrolledCourseCard(enrolledCourse: filteredCourses[index]);
+                        },
+                      ),
+                    );
                   },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(child: Text('Error: $error')),
+                )
+              : publishedCoursesAsync.when(
+                  data: (courses) {
+                    // Filtrar los cursos según el término de búsqueda
+                    final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 4 / 4.6,
+                        ),
+                        itemCount: filteredCourses.length,
+                        itemBuilder: (context, index) {
+                          return _PublishedCourseCard(publishedCourse: filteredCourses[index]);
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(child: Text('Error: $error')),
                 ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(child: Text('Error: $error')),
-          ),
         ),
       ],
+    );
+  }
+}
+
+// 🎨 Diseño de la Tarjeta de Curso
+class _PublishedCourseCard extends StatelessWidget {
+  final Course publishedCourse;
+
+  const _PublishedCourseCard({required this.publishedCourse});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => CourseContent(publishedCourse: publishedCourse),
+        //   ),
+        // )
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 📸 Imagen del Curso
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  publishedCourse.imageUrl!,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // 📜 Información del curso
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      publishedCourse.name,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      publishedCourse.instructorName,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

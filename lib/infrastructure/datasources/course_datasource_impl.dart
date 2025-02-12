@@ -72,4 +72,19 @@ class CourseDatasourceImpl implements CourseDatasource {
       throw Exception('Error en la petición: $e');
     }
   }
+
+  @override
+  Future<List<Course>> getCoursesPublishedByInstructor(int userId) async {
+    try {
+      final response = await _dio.get('/course/findAllByUserId/$userId');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => CourseMapper.userJsonToEntity(json)).toList();
+      } else {
+        throw Exception('Error al cargar los cursos publicados por el instructor');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
 }
