@@ -4,7 +4,7 @@ List<Course> courseList() {
   return [
     Course(
       id: 1,
-      name: 'Introducción a Java asdsa dsad asds',
+      name: 'Introducción a Java',
       description: 'Un curso introductorio',
       benefits: 'Desarrollarás habilidades en Java.',
       targetAudience: 'Estudiantes principiantes en programación.',
@@ -20,6 +20,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2025-02-05T21:50:55.850705'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 2,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 2,
@@ -39,6 +40,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2025-01-20T15:30:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 3,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 3,
@@ -58,6 +60,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-12-10T09:15:30.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 4,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 4,
@@ -77,6 +80,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-11-25T14:00:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 5,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 5,
@@ -96,6 +100,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-10-15T12:00:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 6,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 6,
@@ -115,6 +120,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-09-05T08:30:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 7,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 7,
@@ -134,6 +140,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-08-20T11:00:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 8,
+      instructorName: 'Instructor Name Test',
     ),
     Course(
       id: 8,
@@ -153,6 +160,7 @@ List<Course> courseList() {
       creationDate: DateTime.parse('2024-07-10T14:45:00.000000'),
       lastUpdate: DateTime.parse('2025-02-01T10:00:00.000000'),
       userId: 9,
+      instructorName: 'Instructor Name Test',
     )
   ];
 }

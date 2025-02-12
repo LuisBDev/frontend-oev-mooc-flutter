@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/course_detail.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;
@@ -9,12 +10,12 @@ class CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => CourseDetailPage(course: course),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailPage(courseId: course.id),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -43,16 +44,22 @@ class CourseCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(course.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text(course.name,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                   const SizedBox(height: 4),
-                  const Text('Carlos Soller', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const Text('Carlos Soller',
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
                   const SizedBox(height: 4),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Icon(Icons.people, size: 16, color: Colors.white70),
                       SizedBox(width: 4),
-                      Text('24.5k', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      Text('24.5k',
+                          style: TextStyle(color: Colors.white, fontSize: 12)),
                     ],
                   ),
                 ],

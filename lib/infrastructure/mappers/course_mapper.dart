@@ -20,6 +20,7 @@ class CourseMapper {
       creationDate: json['creationDate'] != null ? DateTime.parse(json['creationDate']) : DateTime.now(),
       lastUpdate: json['lastUpdate'] != null ? DateTime.parse(json['lastUpdate']) : DateTime.now(),
       userId: json['userId'],
+      instructorName: json['instructorName'] ?? 'Instructor Name',
     );
   }
 }
