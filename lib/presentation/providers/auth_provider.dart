@@ -33,6 +33,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
+      state = state.copyWith(isLoading: true);
       final token = await authRepository.login(email, password);
       print('token loginUser: $token');
       _setLoggedUser(token);
@@ -42,6 +43,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       logout('Timeout de conexión');
     } catch (e) {
       logout('Error desconocido');
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -71,29 +74,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void _setLoggedUser(Token token) async {
-    await keyValueStorageService.setKeyValue('token', token);
-    state = state.copyWith(
-      authStatus: AuthStatus.authenticated,
-      token: token,
-      errorMessage: '',
-    );
+  Future<void> _setLoggedUser(Token token) async {
+    try {
+      await keyValueStorageService.setKeyValue('token', token);
+      state = state.copyWith(
+        authStatus: AuthStatus.authenticated,
+        token: token,
+        errorMessage: '',
+      );
+    } catch (e) {
+      print('Error setting logged user: $e');
+      logout('Error al guardar la sesión');
+    }
   }
 
   // New method to update token after profile update
   Future<void> updateToken(Token updatedToken) async {
     try {
-      // Update token in storage
       await keyValueStorageService.setKeyValue('token', updatedToken);
-      
-      // Update state with new token
       state = state.copyWith(
         token: updatedToken,
         errorMessage: '',
       );
     } catch (e) {
       print('Error updating token: $e');
-      // Optionally handle error, but don't logout since the update might have succeeded
       state = state.copyWith(
         errorMessage: 'Error actualizando datos locales',
       );
@@ -116,42 +120,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<String> getValidToken() async {
-  final currentToken = state.token;
-  if (currentToken == null) {
-    throw NotAuthorizedException('No hay sesión activa');
+    final currentToken = state.token;
+    if (currentToken == null) {
+      throw NotAuthorizedException('No hay sesión activa');
+    }
+
+    // Verificar si el token está próximo a expirar (5 minutos antes)
+    final exp = _getTokenExpiration(currentToken.token);
+    if (exp != null &&
+        DateTime.now().isAfter(exp.subtract(Duration(minutes: 5)))) {
+      // Intentar renovar el token
+      try {
+        final newToken = await authRepository.checkAuthStatus(currentToken);
+        await updateToken(newToken);
+        return newToken.token;
+      } catch (e) {
+        await logout('Sesión expirada');
+        throw NotAuthorizedException('Sesión expirada');
+      }
+    }
+
+    return currentToken.token;
   }
 
-  // Verificar si el token está próximo a expirar (5 minutos antes)
-  final exp = _getTokenExpiration(currentToken.token);
-  if (exp != null && DateTime.now().isAfter(exp.subtract(Duration(minutes: 5)))) {
-    // Intentar renovar el token
+  DateTime? _getTokenExpiration(String token) {
     try {
-      final newToken = await authRepository.checkAuthStatus(currentToken);
-      await updateToken(newToken);
-      return newToken.token;
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final payload = json
+          .decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+
+      return DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
     } catch (e) {
-      await logout('Sesión expirada');
-      throw NotAuthorizedException('Sesión expirada');
+      print('Error decodificando token: $e');
+      return null;
     }
   }
-
-  return currentToken.token;
-}
-  DateTime? _getTokenExpiration(String token) {
-  try {
-    final parts = token.split('.');
-    if (parts.length != 3) return null;
-    
-    final payload = json.decode(
-      utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
-    );
-    
-    return DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
-  } catch (e) {
-    print('Error decodificando token: $e');
-    return null;
-  }
-}
 }
 
 enum AuthStatus { checking, authenticated, notAuthenticated }

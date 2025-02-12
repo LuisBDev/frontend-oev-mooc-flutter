@@ -30,19 +30,20 @@ class UserDataSourceImpl implements UserDataSource {
         'email': userData['email'] as String,
         'phone': userData['phone'] as String,
       };
-          // Asegurarse de que el token tenga el formato correcto
-      final String bearerToken = token.startsWith('Bearer ') ? token : 'Bearer $token';
+          // Asegurarse de que el token tenga el formato correcto 
       print('Update data: $formattedData');
-      print('Using token: $token'); // Para debug
-      print('Using bearerToken: $bearerToken'); 
+      print('Using token: $token');
+      final bearerToken = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      print('Using bearerToken: $bearerToken');
       
-      final response = await dio.put(
+    // Cambiamos a PATCH en lugar de PUT
+      final response = await dio.patch(
         '/user/update/$numericId',
         data: formattedData,
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': bearerToken, // Agregamos el token de autorización
+            'Authorization': bearerToken,
           },
           validateStatus: (status) {
             return status != null && status < 500;
@@ -58,10 +59,7 @@ class UserDataSourceImpl implements UserDataSource {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        if (response.data != null) {
-          return UserMapper.userJsonToEntity(response.data);
-        }
-        throw Exception('La respuesta del servidor está vacía');
+        return UserMapper.userJsonToEntity(response.data); 
       } else {
         final errorMessage = response.data?['message'] ??
             'Error desconocido en la actualización';

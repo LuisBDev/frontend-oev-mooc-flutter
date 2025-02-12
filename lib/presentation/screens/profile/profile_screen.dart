@@ -48,92 +48,100 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-Future<void> _saveChanges() async {
-  if (!_formKey.currentState!.validate()) return;
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  final token = ref.read(authProvider).token;
-  if (token == null) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No hay sesión activa. Por favor, vuelve a iniciar sesión.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    final token = ref.read(authProvider).token;
+    if (token == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'No hay sesión activa. Por favor, vuelve a iniciar sesión.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
     }
-    return;
+
+    try {
+      setState(() => isLoading = true);
+      // Obtener un token válido
+      final validToken = await ref.read(authProvider.notifier).getValidToken();
+
+      final userData = {
+        'id': token.id,
+        'name': nameController.text.trim(),
+        'paternalSurname': paternalSurnameController.text.trim(),
+        'maternalSurname': maternalSurnameController.text.trim(),
+        'email': emailController.text.trim(),
+        'phone': phoneController.text.trim()
+      };
+
+      print('Sending update request with data: $userData');
+
+      // Pasamos el token.token aquí
+      await ref.read(userUpdateProvider.notifier).updateUser(
+            token.id,
+            userData,
+            validToken, // Pasamos el token de autenticación
+          );
+
+      final updatedToken = token.copyWith(
+        name: nameController.text.trim(),
+        paternalSurname: paternalSurnameController.text.trim(),
+        maternalSurname: maternalSurnameController.text.trim(),
+        email: emailController.text.trim(),
+        phone: phoneController.text.trim(),
+      );
+
+      await ref.read(authProvider.notifier).updateToken(updatedToken);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Perfil actualizado exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          isEditing = false;
+          isLoading = false;
+        });
+      }
+    } on NotAuthorizedException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Redirigir al home
+        context.go('/home');
+      }
+    } catch (e) {
+      print('Error in _saveChanges: $e');
+      if (mounted) {
+        if (e.toString().contains('Sesión expirada')) {
+          ref
+              .read(authProvider.notifier)
+              .logout('Sesión expirada. Por favor, vuelve a iniciar sesión.');
+          context.go('/login');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al actualizar el perfil: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+        setState(() => isLoading = false);
+      }
+    }
   }
-
-  try {
-    setState(() => isLoading = true);
-    // Obtener un token válido
-    final validToken = await ref.read(authProvider.notifier).getValidToken();
-
-    final userData = {
-      'id': token.id,  
-      'name': nameController.text.trim(),
-      'paternalSurname': paternalSurnameController.text.trim(),
-      'maternalSurname': maternalSurnameController.text.trim(),
-      'email': emailController.text.trim(),
-      'phone': phoneController.text.trim()
-    };
-
-    print('Sending update request with data: $userData');
-
-        // Pasamos el token.token aquí
-    await ref.read(userUpdateProvider.notifier).updateUser(
-      token.id,
-      userData,
-      validToken, // Pasamos el token de autenticación
-    );
-    
-    final updatedToken = token.copyWith(
-      name: nameController.text.trim(),
-      paternalSurname: paternalSurnameController.text.trim(),
-      maternalSurname: maternalSurnameController.text.trim(),
-      email: emailController.text.trim(),
-      phone: phoneController.text.trim(),
-    );
-    
-    await ref.read(authProvider.notifier).updateToken(updatedToken);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Perfil actualizado exitosamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      setState(() {
-        isEditing = false;
-        isLoading = false;
-      });
-    }
-  } on NotAuthorizedException catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
-      // Redirigir al home
-      context.go('/home');
-    }
-  } catch (e) {
-    print('Error in _saveChanges: $e');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al actualizar el perfil: $e'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-      setState(() => isLoading = false);
-    }
-  }
-}
 
   Future<bool> _onWillPop() async {
     if (isEditing) {
