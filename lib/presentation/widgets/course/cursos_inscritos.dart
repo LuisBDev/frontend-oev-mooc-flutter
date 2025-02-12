@@ -6,6 +6,8 @@ import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
+import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
+
 
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final showCompletedProvider = StateProvider<bool>((ref) => false);
@@ -61,13 +63,25 @@ class MyCourses extends ConsumerWidget {
         ),
 
         // Mostrar el switch solo si el usuario es estudiante o administrativo
-        if (isStudentOrAdmin)
+        if (isStudentOrAdmin) ...[
           SwitchListTile(
             title: const Text('Mostrar solo cursos completados', style: TextStyle(color: Colors.white)),
             value: showCompleted,
             onChanged: (value) => ref.read(showCompletedProvider.notifier).state = value,
           ),
-
+          if (showCompleted)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CertificateScreen(),
+                  ),
+                );
+              },
+              child: const Text('Ver lista de certificados'),
+            ),
+           ], 
         Expanded(
           child: isStudentOrAdmin
               // --- Para ESTUDIANTE o ADMIN ---
