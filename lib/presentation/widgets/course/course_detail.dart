@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/courses_providers/enrollment_provider.dart';
 
 class CourseDetailPage extends ConsumerWidget {
   final int courseId;
@@ -22,7 +24,7 @@ class CourseDetailPage extends ConsumerWidget {
         ),
       ),
       body: courseAsync.when(
-        data: (course) => _buildCourseDetail(context, course),
+        data: (course) => _buildCourseDetail(context, ref, course),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
           child: Text("Error: $err", style: const TextStyle(color: Colors.red)),
@@ -31,7 +33,7 @@ class CourseDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCourseDetail(BuildContext context, Course course) {
+  Widget _buildCourseDetail(BuildContext context, WidgetRef ref, Course course) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -107,9 +109,8 @@ class CourseDetailPage extends ConsumerWidget {
           // Botón de Inscribirse
           Center(
             child: ElevatedButton(
-              onPressed: () {
-                // Acción de inscripción
-              },
+              onPressed: () =>
+                _showEnrollmentConfirmation(context, ref, course.id),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 padding:
@@ -140,6 +141,70 @@ class CourseDetailPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  // Confirmation Modal
+  void _showEnrollmentConfirmation(BuildContext context, WidgetRef ref, int courseId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF242636),
+          title: const Text('Confirmación', style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold)),
+          content: const Text('¿Seguro que quieres inscribirte el curso?', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.normal)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
+            ),
+            FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.blue),
+              ),
+              onPressed: () {
+                // Aquí puedes añadir tu lógica para agregar el curso a la cesta
+                Navigator.of(context).pop(); // Cierra el diálogo
+                _enrollUser(ref, courseId);
+              },
+              child: const Text('Aceptar', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Enroll User Function
+  void _enrollUser(WidgetRef ref, int courseId) {
+    final userId = ref.read(authProvider).token?.id;
+    if (userId == null) {
+      ScaffoldMessenger.of(ref.context).showSnackBar(
+        const SnackBar(content: Text('Error: Usuario no autenticado')),
+      );
+      return;
+    }
+
+    final enrollmentData = {'userId': userId, 'courseId': courseId};
+    ref.read(enrollmentProvider(enrollmentData).future).then((success) {
+      if (success) {
+        // Show success message
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          const SnackBar(content: Text('Inscripción exitosa!')),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          const SnackBar(content: Text('Error al inscribirse')),
+        );
+      }
+    }).catchError((error) {
+      // Show error message
+      ScaffoldMessenger.of(ref.context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
+      );
+    });
   }
 
   Widget _buildSection(String title, String? content) {
