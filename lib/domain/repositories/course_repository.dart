@@ -6,4 +6,5 @@ abstract class CourseRepository {
   Future<List<Course>> getCourses();
   Future<List<CourseEnrolled>> getEnrolledCourses(int userId);
   Future<void> addCourse(int userId, CourseRequestDTO courseRequestDTO);
+  Future<Course> getCourseById(int courseId);
 }
