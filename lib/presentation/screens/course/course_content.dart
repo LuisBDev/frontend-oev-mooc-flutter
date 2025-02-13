@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
+import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
 
 class CourseContent extends StatelessWidget {
   final CourseEnrolled courseEnrolled;
@@ -11,7 +12,6 @@ class CourseContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xff1E1E2C), // 🎨 Fondo oscuro
       appBar: AppBar(
-        //title: Text(courseEnrolled.courseName),
         backgroundColor: const Color(0xff1E1E2C), // Color de la AppBar
         iconTheme: const IconThemeData(color: Colors.white), // 🔙 Botón de regreso en blanco
       ),
@@ -66,6 +66,29 @@ class CourseContent extends StatelessWidget {
                 backgroundColor: Colors.grey[700], // Fondo gris oscuro para barra
                 color: Colors.blueAccent, // Color del progreso
                 minHeight: 8,
+              ),
+              const SizedBox(height: 20),
+
+              // 💳 Botón para pagar certificado
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CertificadoPagoScreen(courseEnrolled: courseEnrolled),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.payment, color: Colors.white),
+                  label: const Text('Pagar Certificado'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Color del botón
+                    foregroundColor: Colors.white, // Texto blanco
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
 
