@@ -16,6 +16,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   String cardNumber = '';
   String cardHolder = 'NOMBRE Y APELLIDO';
   String expiryDate = 'MM/AA';
+  String selectedPaymentMethod = 'Tarjeta de crédito/débito'; // Método por defecto
 
   Future<void> _selectExpiryDate(BuildContext context) async {
     DateTime now = DateTime.now();
@@ -27,7 +28,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: ColorScheme.dark(primary: Colors.blue),
+            colorScheme: const ColorScheme.dark(primary: Colors.blue),
           ),
           child: child!,
         );
@@ -41,7 +42,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1E1E2C),
@@ -55,13 +56,23 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Resumen de pago
+            Text('Resumen de pago', style: _titleStyle),
+            const SizedBox(height: 5),
+            Text('Costo: S/. 25', style: _textStyle),
+            const SizedBox(height: 20),
+
+            // Métodos de pago
             Text('Método de pago', style: _titleStyle),
             const SizedBox(height: 10),
             _buildPaymentMethods(),
-            const SizedBox(height: 20),
-            _buildCreditCard(),
-            const SizedBox(height: 20),
-            _buildTextField('Número de la tarjeta',
+
+            if (selectedPaymentMethod == 'Tarjeta de crédito/débito') ...[
+              const SizedBox(height: 20),
+              _buildCreditCard(),
+              const SizedBox(height: 20),
+              _buildTextField(
+                'Número de la tarjeta',
                 onChanged: (value) {
                   setState(() {
                     cardNumber = value.replaceAll(RegExp(r'\D'), '');
@@ -71,25 +82,31 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(16),
-                ]),
-            _buildTextField('Nombre en la tarjeta', onChanged: (value) {
-              setState(() {
-                cardHolder = value.toUpperCase();
-              });
-            }),
-            Row(
-              children: [
-                Expanded(
-                    child: _buildTextField('CVC',
-                        isNumber: true,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(3),
-                        ])),
-                const SizedBox(width: 10),
-                Expanded(child: _buildDateField()),
-              ],
-            ),
+                ],
+              ),
+              _buildTextField('Nombre en la tarjeta', onChanged: (value) {
+                setState(() {
+                  cardHolder = value.toUpperCase();
+                });
+              }),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTextField(
+                      'CVC',
+                      isNumber: true,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildDateField()),
+                ],
+              ),
+            ],
+
             const SizedBox(height: 20),
             _buildPayButton(),
           ],
@@ -97,7 +114,6 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       ),
     );
   }
-
 
   Widget _buildDateField() {
     return GestureDetector(
@@ -180,26 +196,41 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       ),
       child: Column(
         children: [
-          _buildPaymentOption('Tarjeta de crédito/débito', 'assets/images/visa.png', true),
-          _buildPaymentOption('Yape', 'assets/images/YAPE.png', false),
-          _buildPaymentOption('Transferencia Bancaria', 'assets/images/pago_efectivo.png', false),
+          _buildPaymentOption('Tarjeta de crédito/débito', 'assets/images/visa.png'),
+          _buildPaymentOption('Transferencia Bancaria', 'assets/images/pago_efectivo.png'),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentOption(String title, String asset, bool selected) {
-    return Row(
-      children: [
-        Radio(value: selected, groupValue: true, onChanged: (value) {}),
-        Text(title, style: _textStyle),
-        const Spacer(),
-        Image.asset(asset, width: 18, height: 18),
-      ],
+  Widget _buildPaymentOption(String title, String asset) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedPaymentMethod = title;
+        });
+      },
+      child: Row(
+        children: [
+          Radio(
+            value: title,
+            groupValue: selectedPaymentMethod,
+            onChanged: (value) {
+              setState(() {
+                selectedPaymentMethod = value.toString();
+              });
+            },
+            activeColor: Colors.blue,
+          ),
+          Text(title, style: _textStyle),
+          const Spacer(),
+          Image.asset(asset, width: 18, height: 18),
+        ],
+      ),
     );
   }
 
-Widget _buildTextField(String label, {bool isNumber = false, Function(String)? onChanged, List<TextInputFormatter>? inputFormatters}) {
+  Widget _buildTextField(String label, {bool isNumber = false, Function(String)? onChanged, List<TextInputFormatter>? inputFormatters}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -243,3 +274,4 @@ Widget _buildTextField(String label, {bool isNumber = false, Function(String)? o
   final TextStyle _textStyle = const TextStyle(color: Colors.white, fontSize: 16);
   final TextStyle _cardTextStyle = const TextStyle(color: Colors.white, fontSize: 14);
 }
+
