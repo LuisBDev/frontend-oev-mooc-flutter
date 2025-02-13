@@ -6,9 +6,10 @@ import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
+import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
 
-// Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
+final showCompletedProvider = StateProvider<bool>((ref) => false);
 
 class MyCourses extends ConsumerWidget {
   const MyCourses({super.key});
@@ -19,7 +20,10 @@ class MyCourses extends ConsumerWidget {
     final enrolledCoursesAsync = ref.watch(enrolledCoursesProvider);
     final publishedCoursesAsync = ref.watch(coursesPublishedByInstructorProvider);
     final searchQuery = ref.watch(searchQueryProvider);
+    final showCompleted = ref.watch(showCompletedProvider);
     final loggedUser = ref.read(authProvider).token;
+
+    final bool isStudentOrAdmin = loggedUser!.role == 'STUDENT' || loggedUser.role == 'ADMINISTRATIVE';
 
     return Column(
       children: [
@@ -33,7 +37,6 @@ class MyCourses extends ConsumerWidget {
           style: TextStyle(color: Colors.white70),
         ),
         const SizedBox(height: 20),
-        const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
           child: SizedBox(
@@ -41,7 +44,7 @@ class MyCourses extends ConsumerWidget {
             child: TextField(
               cursorColor: colors.primary,
               onChanged: (value) {
-                ref.read(searchQueryProvider.notifier).update((state) => value);
+                ref.read(searchQueryProvider.notifier).state = value;
               },
               style: const TextStyle(color: Colors.white),
               onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -54,78 +57,92 @@ class MyCourses extends ConsumerWidget {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20.0)),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
               ),
             ),
           ),
         ),
+
+        // Mostrar el switch solo si el usuario es estudiante o administrativo
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                (loggedUser!.role == 'STUDENT' || loggedUser.role == 'ADMINISTRATIVE') ? 'Cursos Inscritos' : 'Cursos Impartidos',
-                style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+              const Text(
+                'Cursos',
+                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 onPressed: () => {
-                  ref.refresh(enrolledCoursesProvider),
+                  ref.refresh(coursesProvider),
                 },
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        if (isStudentOrAdmin) ...[
+          SwitchListTile(
+            title: const Text('Mostrar solo cursos completados', style: TextStyle(color: Colors.white)),
+            value: showCompleted,
+            onChanged: (value) => ref.read(showCompletedProvider.notifier).state = value,
+          ),
+          if (showCompleted)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CertificateScreen(),
+                  ),
+                );
+              },
+              child: const Text('Ver lista de certificados'),
+            ),
+        ],
         Expanded(
-          child: loggedUser.role == 'STUDENT' || loggedUser.role == 'ADMINISTRATIVE'
+          child: isStudentOrAdmin
+              // --- Para ESTUDIANTE o ADMIN ---
               ? enrolledCoursesAsync.when(
                   data: (courses) {
-                    // Filtrar los cursos según el término de búsqueda
-                    final filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase())).toList();
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 4 / 4.6,
-                        ),
-                        itemCount: filteredCourses.length,
-                        itemBuilder: (context, index) {
-                          return _EnrolledCourseCard(enrolledCourse: filteredCourses[index]);
-                        },
+                    var filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase()) && (!showCompleted || course.progress == 100)).toList();
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 4 / 4.6,
                       ),
+                      itemCount: filteredCourses.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => context.push('/course_content', extra: filteredCourses[index]),
+                          child: EnrolledCourseCard(enrolledCourse: filteredCourses[index]),
+                        );
+                      },
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) => Center(child: Text('Error: $error')),
                 )
+              // --- Para INSTRUCTOR ---
               : publishedCoursesAsync.when(
                   data: (courses) {
-                    // Filtrar los cursos según el término de búsqueda
                     final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 4 / 4.6,
-                        ),
-                        itemCount: filteredCourses.length,
-                        itemBuilder: (context, index) {
-                          return _PublishedCourseCard(publishedCourse: filteredCourses[index]);
-                        },
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 4 / 4.6,
                       ),
+                      itemCount: filteredCourses.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => context.push('/course_content', extra: filteredCourses[index]),
+                          child: PublishedCourseCard(publishedCourse: filteredCourses[index]),
+                        );
+                      },
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
@@ -137,67 +154,49 @@ class MyCourses extends ConsumerWidget {
   }
 }
 
-// 🎨 Diseño de la Tarjeta de Curso
-class _PublishedCourseCard extends StatelessWidget {
+// --- Tarjeta de cursos PUBLICADOS por el instructor ---
+class PublishedCourseCard extends StatelessWidget {
   final Course publishedCourse;
 
-  const _PublishedCourseCard({required this.publishedCourse});
+  const PublishedCourseCard({required this.publishedCourse, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => CourseContent(publishedCourse: publishedCourse),
-        //   ),
-        // )
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(15),
-        ),
+    return Card(
+      color: Colors.black54,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 📸 Imagen del Curso
+            // Imagen del curso
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  publishedCourse.imageUrl!,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              child: Image.network(
+                publishedCourse.imageUrl ?? 'https://via.placeholder.com/150',
+                width: double.infinity,
+                height: 120,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: 8),
 
-            // 📜 Información del curso
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      publishedCourse.name,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      publishedCourse.instructorName,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ),
+            // Nombre del curso
+            Text(
+              publishedCourse.name,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+
+            // Descripción del curso
+            Text(
+              publishedCourse.description ?? 'Sin descripción',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -206,82 +205,57 @@ class _PublishedCourseCard extends StatelessWidget {
   }
 }
 
-// 🎨 Diseño de la Tarjeta de Curso
-class _EnrolledCourseCard extends StatelessWidget {
+// --- Tarjeta de cursos ENROLADOS por el estudiante ---
+class EnrolledCourseCard extends StatelessWidget {
   final CourseEnrolled enrolledCourse;
 
-  const _EnrolledCourseCard({required this.enrolledCourse});
+  const EnrolledCourseCard({required this.enrolledCourse, super.key});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => {
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CourseContent(courseEnrolled: enrolledCourse),
           ),
-        )
+        );
       },
       child: Container(
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.black54,
           borderRadius: BorderRadius.circular(15),
         ),
-        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 📸 Imagen del Curso
+            // Imagen del curso
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  enrolledCourse.courseImageUrl,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              child: Image.network(
+                enrolledCourse.courseImageUrl,
+                width: double.infinity,
+                height: 180,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: 8),
 
-            // 📜 Información del curso
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      enrolledCourse.courseName,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      enrolledCourse.instructorName,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
+            // Nombre del curso
+            Text(
+              enrolledCourse.courseName,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
 
-                    // 📊 Progreso y Certificado
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Progreso: ${enrolledCourse.progress}%', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                        // Icon(curso.hasCertificate ? Icons.check_circle : Icons.close, color: curso.hasCertificate ? Colors.green : Colors.red),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    LinearProgressIndicator(
-                      value: enrolledCourse.progress / 100,
-                      backgroundColor: Colors.grey,
-                      color: Colors.blueAccent,
-                    ),
-                  ],
-                ),
-              ),
+            // Nombre del instructor
+            Text(
+              enrolledCourse.instructorName,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
