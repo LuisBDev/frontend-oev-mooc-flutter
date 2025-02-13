@@ -108,10 +108,8 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   }
 
   Widget _buildCreditCard() {
-    String maskedNumber = cardNumber.isEmpty
-        ? '**** **** **** ****'
-        : ('*' * (cardNumber.length - 4)).replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ') +
-            cardNumber.substring(cardNumber.length - 4);
+    String maskedNumber =
+        cardNumber.isEmpty ? '**** **** **** ****' : ('*' * (cardNumber.length - 4)).replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ') + cardNumber.substring(cardNumber.length - 4);
 
     return Container(
       width: double.infinity,
@@ -160,9 +158,9 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       ),
       child: Column(
         children: [
-          _buildPaymentOption('Tarjeta de crédito/débito', 'assets/icons/visa.png', true),
-          _buildPaymentOption('Yape', 'assets/icons/YAPE.png', false),
-          _buildPaymentOption('Transferencia Bancaria', 'assets/icons/pago_efectivo.png', false),
+          _buildPaymentOption('Tarjeta de crédito/débito', 'assets/images/visa.png', true),
+          _buildPaymentOption('Yape', 'assets/images/YAPE.png', false),
+          _buildPaymentOption('Transferencia Bancaria', 'assets/images/pago_efectivo.png', false),
         ],
       ),
     );

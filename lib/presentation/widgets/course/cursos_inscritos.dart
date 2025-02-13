@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
 
-
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final showCompletedProvider = StateProvider<bool>((ref) => false);
 
@@ -63,6 +62,24 @@ class MyCourses extends ConsumerWidget {
         ),
 
         // Mostrar el switch solo si el usuario es estudiante o administrativo
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Text(
+                'Cursos',
+                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                onPressed: () => {
+                  ref.refresh(coursesProvider),
+                },
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
         if (isStudentOrAdmin) ...[
           SwitchListTile(
             title: const Text('Mostrar solo cursos completados', style: TextStyle(color: Colors.white)),
@@ -81,15 +98,13 @@ class MyCourses extends ConsumerWidget {
               },
               child: const Text('Ver lista de certificados'),
             ),
-           ], 
+        ],
         Expanded(
           child: isStudentOrAdmin
               // --- Para ESTUDIANTE o ADMIN ---
               ? enrolledCoursesAsync.when(
                   data: (courses) {
-                    var filteredCourses = courses.where((course) =>
-                        course.courseName.toLowerCase().contains(searchQuery.toLowerCase()) &&
-                        (!showCompleted || course.progress == 100)).toList();
+                    var filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase()) && (!showCompleted || course.progress == 100)).toList();
                     return GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -112,8 +127,7 @@ class MyCourses extends ConsumerWidget {
               // --- Para INSTRUCTOR ---
               : publishedCoursesAsync.when(
                   data: (courses) {
-                    final filteredCourses = courses.where((course) =>
-                        course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+                    final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
                     return GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
