@@ -30,7 +30,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       debugShowCheckedModeBanner: false,
       title: ref.read(authProvider).token?.name ?? 'xdxd test',
       home: Scaffold(
-        backgroundColor: const Color(0xffe1e1e2c),
+        backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
         appBar: AppBar(
           backgroundColor: const Color(0xff2a2c3e),
           leading: Padding(

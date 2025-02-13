@@ -44,22 +44,16 @@ class CourseCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(course.name,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
+                  Text(course.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                   const SizedBox(height: 4),
-                  const Text('Carlos Soller',
-                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(course.instructorName, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   const SizedBox(height: 4),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Icon(Icons.people, size: 16, color: Colors.white70),
                       SizedBox(width: 4),
-                      Text('24.5k',
-                          style: TextStyle(color: Colors.white, fontSize: 12)),
+                      Text('24.5k', style: TextStyle(color: Colors.white, fontSize: 12)),
                     ],
                   ),
                 ],

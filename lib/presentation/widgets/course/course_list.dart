@@ -53,6 +53,7 @@ class CourseList extends ConsumerWidget {
                 ref.read(searchQueryProvider.notifier).update((state) => value);
               },
               style: const TextStyle(color: Colors.white),
+              onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
                 hintText: 'Buscar por curso',
                 hintStyle: TextStyle(color: Colors.grey),
