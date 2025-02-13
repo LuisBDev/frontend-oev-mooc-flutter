@@ -116,7 +116,7 @@ class MyCourses extends ConsumerWidget {
                       itemCount: filteredCourses.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () => context.push('/course_content', extra: filteredCourses[index]),
+                          // onTap: () => context.push('/course_content', extra: filteredCourses[index]),
                           child: EnrolledCourseCard(enrolledCourse: filteredCourses[index]),
                         );
                       },
@@ -139,7 +139,7 @@ class MyCourses extends ConsumerWidget {
                       itemCount: filteredCourses.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: () => context.push('/course_content', extra: filteredCourses[index]),
+                          // onTap: () => context.push('/course_content', extra: filteredCourses[index]),
                           child: PublishedCourseCard(publishedCourse: filteredCourses[index]),
                         );
                       },
@@ -193,7 +193,7 @@ class PublishedCourseCard extends StatelessWidget {
 
             // Descripción del curso
             Text(
-              publishedCourse.description ?? 'Sin descripción',
+              publishedCourse.instructorName,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -237,7 +237,7 @@ class EnrolledCourseCard extends StatelessWidget {
               child: Image.network(
                 enrolledCourse.courseImageUrl,
                 width: double.infinity,
-                height: 180,
+                height: 150,
                 fit: BoxFit.cover,
               ),
             ),
@@ -256,6 +256,22 @@ class EnrolledCourseCard extends StatelessWidget {
             Text(
               enrolledCourse.instructorName,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+
+            // Progreso del curso
+            LinearProgressIndicator(
+              value: enrolledCourse.progress / 100,
+              backgroundColor: Colors.grey,
+              color: Colors.blue,
+              minHeight: 5,
+            ),
+            const SizedBox(height: 4),
+
+            // Texto del progreso
+            Text(
+              'Progreso: ${enrolledCourse.progress}%',
+              style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
           ],
         ),

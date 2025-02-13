@@ -79,6 +79,18 @@ class CourseContent extends StatelessWidget {
                 color: Colors.blueAccent, // Color del progreso
                 minHeight: 8,
               ),
+              const SizedBox(
+                height: 20.0,
+              ),
+              SizedBox(
+                height: 440, // Set a fixed height for the ListView
+                child: ListView.builder(
+                  itemCount: 9,
+                  itemBuilder: (context, index) {
+                    return LessonCard(lesson: Lesson(title: 'Lección $index', duration: '10:00'), index: index + 1);
+                  },
+                ),
+              ),
               const SizedBox(height: 20),
 
               // 💳 Botón para pagar certificado
@@ -102,21 +114,44 @@ class CourseContent extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-
               // 📝 Mensaje Placeholder (A falta de módulos)
-              const Center(
-                child: Text(
-                  'No hay contenido disponible para este curso.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70, // Texto gris claro
-                  ),
-                ),
-              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Subwidget para cada lección
+class LessonCard extends StatelessWidget {
+  final Lesson lesson;
+  final int index;
+
+  const LessonCard({super.key, required this.lesson, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.grey[900],
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: ListTile(
+        leading: Icon(
+          lesson.completed ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: lesson.completed ? Colors.green : Colors.white,
+        ),
+        title: Text(
+          "Clase $index: ${lesson.title}",
+          style: const TextStyle(color: Colors.white),
+        ),
+        trailing: Text(
+          lesson.duration,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        onTap: () {
+          // Acción al tocar una lección
+        },
       ),
     );
   }
