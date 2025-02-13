@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
+import 'package:flutter/services.dart';
 
 class CertificadoPagoScreen extends StatefulWidget {
   final CourseEnrolled courseEnrolled;
@@ -40,7 +41,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1E1E2C),
@@ -60,11 +61,17 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
             const SizedBox(height: 20),
             _buildCreditCard(),
             const SizedBox(height: 20),
-            _buildTextField('Número de la tarjeta', onChanged: (value) {
-              setState(() {
-                cardNumber = value.replaceAll(RegExp(r'\D'), '');
-              });
-            }, isNumber: true),
+            _buildTextField('Número de la tarjeta',
+                onChanged: (value) {
+                  setState(() {
+                    cardNumber = value.replaceAll(RegExp(r'\D'), '');
+                  });
+                },
+                isNumber: true,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(16),
+                ]),
             _buildTextField('Nombre en la tarjeta', onChanged: (value) {
               setState(() {
                 cardHolder = value.toUpperCase();
@@ -72,7 +79,13 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
             }),
             Row(
               children: [
-                Expanded(child: _buildTextField('CVC', isNumber: true)),
+                Expanded(
+                    child: _buildTextField('CVC',
+                        isNumber: true,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ])),
                 const SizedBox(width: 10),
                 Expanded(child: _buildDateField()),
               ],
@@ -84,6 +97,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       ),
     );
   }
+
 
   Widget _buildDateField() {
     return GestureDetector(
@@ -108,8 +122,16 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   }
 
   Widget _buildCreditCard() {
-    String maskedNumber =
-        cardNumber.isEmpty ? '**** **** **** ****' : ('*' * (cardNumber.length - 4)).replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ') + cardNumber.substring(cardNumber.length - 4);
+    String maskedNumber;
+    if (cardNumber.isEmpty) {
+      maskedNumber = '**** **** **** ****';
+    } else if (cardNumber.length <= 4) {
+      maskedNumber = cardNumber;
+    } else {
+      String hiddenPart = '*' * (cardNumber.length - 4);
+      hiddenPart = hiddenPart.replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ');
+      maskedNumber = '$hiddenPart${cardNumber.substring(cardNumber.length - 4)}';
+    }
 
     return Container(
       width: double.infinity,
@@ -177,13 +199,14 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     );
   }
 
-  Widget _buildTextField(String label, {bool isNumber = false, Function(String)? onChanged}) {
+Widget _buildTextField(String label, {bool isNumber = false, Function(String)? onChanged, List<TextInputFormatter>? inputFormatters}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         style: const TextStyle(color: Colors.white),
         onChanged: onChanged,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.white70),
