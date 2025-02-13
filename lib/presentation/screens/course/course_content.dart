@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
 
-class Lesson {
-  final String title;
-  final String duration;
-  final bool completed;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-  Lesson({
-    required this.title,
-    required this.duration,
-    this.completed = false,
-  });
-}
-
-class CourseContent extends StatelessWidget {
+class CourseContent extends ConsumerWidget {
   final CourseEnrolled courseEnrolled;
 
   const CourseContent({super.key, required this.courseEnrolled});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lessonsAsyncValue = ref.watch(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId));
+
     return Scaffold(
       backgroundColor: const Color(0xff1E1E2C), // 🎨 Fondo oscuro
       appBar: AppBar(
         backgroundColor: const Color(0xff1E1E2C), // Color de la AppBar
-        iconTheme: const IconThemeData(color: Colors.white), // 🔙 Botón de regreso en blanco
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -54,13 +48,23 @@ class CourseContent extends StatelessWidget {
                   color: Colors.white, // Texto en blanco
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Instructor: ${courseEnrolled.instructorName}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70, // Texto gris claro
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Instructor: ${courseEnrolled.instructorName}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70, // Texto gris claro
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => {
+                      ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
+                    },
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 
@@ -79,42 +83,52 @@ class CourseContent extends StatelessWidget {
                 color: Colors.blueAccent, // Color del progreso
                 minHeight: 8,
               ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              SizedBox(
-                height: 440, // Set a fixed height for the ListView
-                child: ListView.builder(
-                  itemCount: 9,
-                  itemBuilder: (context, index) {
-                    return LessonCard(lesson: Lesson(title: 'Lección $index', duration: '10:00'), index: index + 1);
-                  },
+              Visibility(
+                visible: courseEnrolled.progress == 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start, // Alinea el botón a la derecha
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14.0, left: 15.0), // Añade padding solo en la parte superior y derecha
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CertificadoPagoScreen(courseEnrolled: courseEnrolled),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.payment, color: Colors.white),
+                        label: const Text('Pagar Certificado'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueGrey, // Color del botón
+                          foregroundColor: Colors.white, // Texto blanco
+                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+                          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // 💳 Botón para pagar certificado
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CertificadoPagoScreen(courseEnrolled: courseEnrolled),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.payment, color: Colors.white),
-                  label: const Text('Pagar Certificado'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Color del botón
-                    foregroundColor: Colors.white, // Texto blanco
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              const SizedBox(
+                height: 10.0,
+              ),
+              lessonsAsyncValue.when(
+                data: (lessons) => SizedBox(
+                  height: 440, // Set a fixed height for the ListView
+                  child: ListView.builder(
+                    itemCount: lessons.length,
+                    itemBuilder: (context, index) {
+                      return LessonCard(lesson: lessons[index], index: index + 1);
+                    },
                   ),
                 ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text('Error: $error')),
               ),
-              // 📝 Mensaje Placeholder (A falta de módulos)
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -123,7 +137,6 @@ class CourseContent extends StatelessWidget {
   }
 }
 
-// Subwidget para cada lección
 class LessonCard extends StatelessWidget {
   final Lesson lesson;
   final int index;
@@ -138,16 +151,16 @@ class LessonCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(
-          lesson.completed ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: lesson.completed ? Colors.green : Colors.white,
+          lesson.status == 'COMPLETED' ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: lesson.status == 'COMPLETED' ? Colors.green : Colors.white,
         ),
         title: Text(
-          "Clase $index: ${lesson.title}",
+          "Clase $index: ${lesson.lessonTitle}",
           style: const TextStyle(color: Colors.white),
         ),
-        trailing: Text(
-          lesson.duration,
-          style: const TextStyle(color: Colors.white70),
+        trailing: const Text(
+          '10:00',
+          style: TextStyle(color: Colors.white70),
         ),
         onTap: () {
           // Acción al tocar una lección
