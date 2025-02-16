@@ -7,6 +7,7 @@ import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
+import 'package:oev_mobile_app/presentation/screens/course/course_editable_content.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final showCompletedProvider = StateProvider<bool>((ref) => false);
@@ -138,8 +139,15 @@ class MyCourses extends ConsumerWidget {
                       ),
                       itemCount: filteredCourses.length,
                       itemBuilder: (context, index) {
-                        return GestureDetector(
-                          // onTap: () => context.push('/course_content', extra: filteredCourses[index]),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CourseEditableContent(course: filteredCourses[index]),
+                              ),
+                            );
+                          },
                           child: PublishedCourseCard(publishedCourse: filteredCourses[index]),
                         );
                       },

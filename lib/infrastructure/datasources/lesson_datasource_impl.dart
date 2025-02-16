@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:oev_mobile_app/domain/datasources/enrollment_datasource.dart';
+import 'package:oev_mobile_app/domain/datasources/lesson_datasource.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import '../../config/constants/environment.dart';
 import '../../domain/errors/auth_errors.dart';
 
-class EnrollmentDatasourceImpl implements LessonDatasource {
+class LessonDatasourceImpl implements LessonDataSource {
   final dio = Dio(
     BaseOptions(
       baseUrl: Environment.apiUrl,
@@ -11,19 +12,14 @@ class EnrollmentDatasourceImpl implements LessonDatasource {
   );
 
   @override
-  Future<bool> enrollUserInCourse(int userId, int courseId) async {
+  Future<List<Lesson>> getLessonsByCourseId(int courseId) async {
     try {
-      final response = await dio.post(
-        '/enrollment/create',
-        data: {
-          'userId': userId,
-          'courseId': courseId,
-        },
-      );
-      if (response.statusCode == 201) {
-        return true;
+      final response = await dio.get('/lesson/findLessonsByCourseId/$courseId');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Lesson.fromJson(json)).toList();
       } else {
-        return false;
+        throw Exception('Error al cargar las lecciones');
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {

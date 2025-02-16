@@ -2,7 +2,7 @@ import 'package:oev_mobile_app/domain/datasources/enrollment_datasource.dart';
 import 'package:oev_mobile_app/domain/repositories/enrollment_repository.dart';
 
 class EnrollmentRepositoryImpl implements EnrollmentRepository {
-  final EnrollmentDataSource dataSource;
+  final LessonDatasource dataSource;
 
   EnrollmentRepositoryImpl({required this.dataSource});
 
