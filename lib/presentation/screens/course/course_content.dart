@@ -59,9 +59,7 @@ class CourseContent extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => {
-                      ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
-                    },
+                    onPressed: () => ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white),
                   ),
                 ],

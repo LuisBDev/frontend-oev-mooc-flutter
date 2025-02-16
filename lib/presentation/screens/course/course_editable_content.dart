@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/infrastructure/helpers/video_uploader.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/lesson_provider.dart';
 
 class CourseEditableContent extends ConsumerWidget {
@@ -50,9 +51,17 @@ class CourseEditableContent extends ConsumerWidget {
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "Contenido",
-              style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                const Text(
+                  "Contenido",
+                  style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  onPressed: () => ref.refresh(lessonProvider(course.id)),
+                  icon: const Icon(Icons.refresh, color: Colors.blueAccent),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             lessonProviderAsync.when(
@@ -72,7 +81,10 @@ class CourseEditableContent extends ConsumerWidget {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () async {
+                  VideoUploader uploader = VideoUploader();
+                  await uploader.pickAndUploadVideo();
+                },
                 icon: const Icon(Icons.add),
                 label: const Text("Agregar recurso"),
                 style: ElevatedButton.styleFrom(
