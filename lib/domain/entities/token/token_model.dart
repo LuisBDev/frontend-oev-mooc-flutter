@@ -18,4 +18,26 @@ class Token {
     required this.role,
     required this.token,
   });
+
+  Token copyWith({
+    int? id,
+    String? name,
+    String? paternalSurname,
+    String? maternalSurname,
+    String? email,
+    String? phone,
+    String? role,
+    String? token,
+  }) {
+    return Token(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      paternalSurname: paternalSurname ?? this.paternalSurname,
+      maternalSurname: maternalSurname ?? this.maternalSurname,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      token: token ?? this.token,
+    );
+  }
 }
