@@ -16,7 +16,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   String cardNumber = '';
   String cardHolder = 'NOMBRE Y APELLIDO';
   String expiryDate = 'MM/AA';
-  String selectedPaymentMethod = 'Tarjeta de crédito/débito'; // Método por defecto
+  String selectedPaymentMethod =
+      'Tarjeta de crédito/débito'; // Método por defecto
+  final String cuentaInterbancaria = '123-456-789-000';
+  final String cuentaVisa = '987-654-321-000';
 
   Future<void> _selectExpiryDate(BuildContext context) async {
     DateTime now = DateTime.now();
@@ -42,6 +45,60 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     }
   }
 
+  void _showPaymentDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Prevents closing the dialog by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.blue[100],
+          title: const Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 10),
+              Text('Procesando el pago...',
+                  style: TextStyle(color: Colors.blue)),
+            ],
+          ),
+          content: const Text('Por favor espere mientras procesamos su pago...',
+              style: TextStyle(color: Colors.blue)),
+        );
+      },
+    );
+  }
+
+  void _showPaymentCompletedDialog() {
+    Navigator.of(context).pop(); // Close the payment processing dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.green[100],
+          title: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.green),
+              SizedBox(width: 10),
+              Text('Pago completado', style: TextStyle(color: Colors.green)),
+            ],
+          ),
+          content: const Text('El pago se ha procesado correctamente.',
+              style: TextStyle(color: Colors.green)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Close the payment completed dialog
+              },
+              child:
+                  const Text('Cerrar', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +106,8 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xff1E1E2C),
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Pago del Certificado', style: TextStyle(color: Colors.white)),
+        title: const Text('Pago del Certificado',
+            style: TextStyle(color: Colors.white)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -68,6 +126,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
             _buildPaymentMethods(),
 
             if (selectedPaymentMethod == 'Tarjeta de crédito/débito') ...[
+              // Credit Card
               const SizedBox(height: 20),
               _buildCreditCard(),
               const SizedBox(height: 20),
@@ -145,8 +204,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       maskedNumber = cardNumber;
     } else {
       String hiddenPart = '*' * (cardNumber.length - 4);
-      hiddenPart = hiddenPart.replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ');
-      maskedNumber = '$hiddenPart${cardNumber.substring(cardNumber.length - 4)}';
+      hiddenPart =
+          hiddenPart.replaceAllMapped(RegExp(r'.{4}'), (match) => '**** ');
+      maskedNumber =
+          '$hiddenPart${cardNumber.substring(cardNumber.length - 4)}';
     }
 
     return Container(
@@ -196,8 +257,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       ),
       child: Column(
         children: [
-          _buildPaymentOption('Tarjeta de crédito/débito', 'assets/images/visa.png'),
-          _buildPaymentOption('Transferencia Bancaria', 'assets/images/pago_efectivo.png'),
+          _buildPaymentOption(
+              'Tarjeta de crédito/débito', 'assets/images/visa.png'),
+          _buildPaymentOption(
+              'Transferencia Bancaria', 'assets/images/pago_efectivo.png'),
         ],
       ),
     );
@@ -230,7 +293,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     );
   }
 
-  Widget _buildTextField(String label, {bool isNumber = false, Function(String)? onChanged, List<TextInputFormatter>? inputFormatters}) {
+  Widget _buildTextField(String label,
+      {bool isNumber = false,
+      Function(String)? onChanged,
+      List<TextInputFormatter>? inputFormatters}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -257,21 +323,38 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          print('Procesando pago...');
+          _showPaymentDialog(); // Show the payment processing dialog
+          Future.delayed(const Duration(seconds: 3), () {
+            _showPaymentCompletedDialog(); // Show the payment completed dialog
+          });
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-        child: const Text('Completar pago'),
+        child: const Text('Pagar', style: TextStyle(fontSize: 16)),
       ),
     );
   }
 
-  final TextStyle _titleStyle = const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold);
-  final TextStyle _textStyle = const TextStyle(color: Colors.white, fontSize: 16);
-  final TextStyle _cardTextStyle = const TextStyle(color: Colors.white, fontSize: 14);
-}
+  TextStyle get _titleStyle => const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      );
 
+  TextStyle get _textStyle => const TextStyle(
+        color: Colors.white70,
+        fontSize: 14,
+      );
+
+  TextStyle get _cardTextStyle => const TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      );
+}

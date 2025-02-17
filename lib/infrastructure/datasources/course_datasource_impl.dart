@@ -6,7 +6,6 @@ import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/domain/entities/dto/request/course_dto.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import 'package:oev_mobile_app/infrastructure/mappers/course_mapper.dart';
-import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 
 class CourseDatasourceImpl implements CourseDatasource {
   final _dio = Dio(
@@ -83,7 +82,8 @@ class CourseDatasourceImpl implements CourseDatasource {
         final List<dynamic> data = response.data;
         return data.map((json) => CourseMapper.userJsonToEntity(json)).toList();
       } else {
-        throw Exception('Error al cargar los cursos publicados por el instructor');
+        throw Exception(
+            'Error al cargar los cursos publicados por el instructor');
       }
     } catch (e) {
       throw Exception('Error en la petición: $e');
@@ -91,10 +91,12 @@ class CourseDatasourceImpl implements CourseDatasource {
   }
 
   @override
-  Future<List<Lesson>> getLessonsByUserIdAndCourseId(int userId, int courseId) async {
+  Future<List<Lesson>> getLessonsByUserIdAndCourseId(
+      int userId, int courseId) async {
     // the endpoit is: /user-lesson-progress/user/3/course/1, implement it
     try {
-      final response = await _dio.get('/user-lesson-progress/user/$userId/course/$courseId');
+      final response =
+          await _dio.get('/user-lesson-progress/user/$userId/course/$courseId');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((json) => Lesson.fromJson(json)).toList();

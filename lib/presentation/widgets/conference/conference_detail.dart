@@ -68,7 +68,8 @@ class ConferenceScreen extends StatelessWidget {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -90,7 +91,7 @@ class InfoChip extends StatelessWidget {
   final String label;
   final String value;
 
-  const InfoChip({required this.label, required this.value});
+  const InfoChip({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
