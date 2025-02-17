@@ -3,7 +3,6 @@ import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CourseContent extends ConsumerWidget {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:flutter/services.dart';
+import 'Comprobante_pago.dart';
 
 class CertificadoPagoScreen extends StatefulWidget {
   final CourseEnrolled courseEnrolled;
@@ -45,31 +46,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     }
   }
 
-  void _showPaymentDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Prevents closing the dialog by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.blue[100],
-          title: const Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 10),
-              Text('Procesando el pago...',
-                  style: TextStyle(color: Colors.blue)),
-            ],
-          ),
-          content: const Text('Por favor espere mientras procesamos su pago...',
-              style: TextStyle(color: Colors.blue)),
-        );
-      },
-    );
-  }
-
   void _showPaymentCompletedDialog() {
-    Navigator.of(context).pop(); // Close the payment processing dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -89,9 +66,20 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
               onPressed: () {
                 Navigator.of(context)
                     .pop(); // Close the payment completed dialog
+                // Navegar al comprobante de pago
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ComprobantePagoScreen(
+                      courseName:
+                          'Flutter Course', // Pass the required arguments
+                      transactionNumber: 'XYZ123',
+                    ),
+                  ),
+                );
               },
-              child:
-                  const Text('Cerrar', style: TextStyle(color: Colors.green)),
+              child: const Text('Ver Comprobante',
+                  style: TextStyle(color: Colors.green)),
             ),
           ],
         );
@@ -126,7 +114,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
             _buildPaymentMethods(),
 
             if (selectedPaymentMethod == 'Tarjeta de crédito/débito') ...[
-              // Credit Card
+              // Tarjeta de crédito
               const SizedBox(height: 20),
               _buildCreditCard(),
               const SizedBox(height: 20),
@@ -323,10 +311,7 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          _showPaymentDialog(); // Show the payment processing dialog
-          Future.delayed(const Duration(seconds: 3), () {
-            _showPaymentCompletedDialog(); // Show the payment completed dialog
-          });
+          _showPaymentCompletedDialog(); // Show the payment completed dialog
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
@@ -341,20 +326,16 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     );
   }
 
-  TextStyle get _titleStyle => const TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      );
+  TextStyle get _titleStyle {
+    return const TextStyle(
+        fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold);
+  }
 
-  TextStyle get _textStyle => const TextStyle(
-        color: Colors.white70,
-        fontSize: 14,
-      );
+  TextStyle get _textStyle {
+    return const TextStyle(fontSize: 14, color: Colors.white);
+  }
 
-  TextStyle get _cardTextStyle => const TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      );
+  TextStyle get _cardTextStyle {
+    return const TextStyle(fontSize: 14, color: Colors.white70);
+  }
 }
