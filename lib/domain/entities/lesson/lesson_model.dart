@@ -1,7 +1,7 @@
 class Lesson {
   final int id;
   final String title;
-  final String videoUrl;
+  final String videoKey;
   final int? duration;
   final int? sequenceOrder;
   final DateTime createdAt;
@@ -11,7 +11,7 @@ class Lesson {
   Lesson({
     required this.id,
     required this.title,
-    required this.videoUrl,
+    required this.videoKey,
     this.duration,
     this.sequenceOrder,
     required this.createdAt,
@@ -23,7 +23,7 @@ class Lesson {
     return Lesson(
       id: json['id'],
       title: json['title'],
-      videoUrl: json['videoUrl'],
+      videoKey: json['videoKey'],
       duration: json['duration'],
       sequenceOrder: json['sequenceOrder'] ?? 0,
       createdAt: DateTime.parse(json['createdAt']),

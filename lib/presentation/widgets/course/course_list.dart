@@ -108,6 +108,14 @@ class CourseList extends ConsumerWidget {
             data: (courses) {
               // Filtrar los cursos según el término de búsqueda
               final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+              if (filteredCourses.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No hay cursos publicados',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                );
+              }
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -116,7 +124,7 @@ class CourseList extends ConsumerWidget {
                     crossAxisCount: 2,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 4 / 4.6,
+                    childAspectRatio: 4 / 4.4,
                   ),
                   itemCount: filteredCourses.length,
                   itemBuilder: (context, index) {

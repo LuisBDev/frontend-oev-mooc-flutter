@@ -3,7 +3,7 @@ class LessonProgress {
   final int userId;
   final int lessonId;
   final String lessonTitle;
-  final String? lessonVideoUrl;
+  final String? lessonVideoKey;
   final int? duration;
   final String status;
   final DateTime? completedAt;
@@ -13,7 +13,7 @@ class LessonProgress {
     required this.userId,
     required this.lessonId,
     required this.lessonTitle,
-    this.lessonVideoUrl,
+    this.lessonVideoKey,
     this.duration,
     required this.status,
     this.completedAt,
@@ -25,7 +25,7 @@ class LessonProgress {
       userId: json['userId'],
       lessonId: json['lessonId'],
       lessonTitle: json['lessonTitle'],
-      lessonVideoUrl: json['lessonVideoUrl'],
+      lessonVideoKey: json['lessonVideoKey'],
       duration: json['duration'],
       status: json['status'],
       completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt']) : null,

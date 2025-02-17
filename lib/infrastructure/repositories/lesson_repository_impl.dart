@@ -12,4 +12,9 @@ class LessonRepositoryImpl implements LessonRepository {
   Future<List<Lesson>> getLessonsByCourseId(int courseId) {
     return dataSource.getLessonsByCourseId(courseId);
   }
+
+  @override
+  Future<Lesson> createLesson(int courseId, String title, String videoKey) {
+    return dataSource.createLesson(courseId, title, videoKey);
+  }
 }

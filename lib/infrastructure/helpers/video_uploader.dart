@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oev_mobile_app/config/constants/environment.dart';
+import 'package:oev_mobile_app/domain/repositories/lesson_repository.dart';
+import 'package:oev_mobile_app/infrastructure/repositories/lesson_repository_impl.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 
 class VideoUploader {
   final Dio _dio = Dio(
@@ -12,6 +15,7 @@ class VideoUploader {
   );
   final String backendUrl = '/s3/file/upload-url';
   final String bucketName = Environment.bucketName;
+  final LessonRepository lessonRepository = LessonRepositoryImpl();
 
   /// Permite al usuario seleccionar un video desde la galería
   Future<File?> pickVideo() async {
@@ -37,7 +41,6 @@ class VideoUploader {
       );
 
       if (response.statusCode == 200) {
-        print(response.data['url']);
         return response.data['url'];
       }
     } catch (e) {
@@ -50,42 +53,40 @@ class VideoUploader {
     try {
       print("Iniciando subida del video...");
 
-      // Abre el archivo en modo lectura binaria
       var fileStream = videoFile.openRead();
       var length = await videoFile.length();
 
       final response = await _dio.put(
         presignedUrl,
-        data: fileStream, // Envía el archivo como stream
+        data: fileStream,
         options: Options(
           headers: {
-            "Content-Type": "video/mp4", // Tipo de contenido
-            "Content-Length": length.toString(), // Tamaño del archivo (importante para S3)
+            "Content-Type": "video/mp4",
+            "Content-Length": length.toString(),
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        print("Video subido con éxito!");
+        print("✅ Video subido correctamente!");
         return true;
-      } else {
-        print("Error al subir el video: ${response.statusCode}");
       }
     } catch (e) {
-      print("Excepción al subir el video: $e");
+      print("❌ Excepción al subir el video: $e");
     }
     return false;
   }
 
-  /// Función principal: selecciona un video, obtiene la URL firmada y lo sube a S3
-  Future<void> pickAndUploadVideo() async {
+  /// Selecciona, sube video y crea la lección
+  Future<void> uploadLessonVideo(int courseId, String lessonTitle) async {
     File? videoFile = await pickVideo();
     if (videoFile == null) {
       print("No se seleccionó ningún video.");
       return;
     }
 
-    String fileName = 'prueba.mp4'; // Puedes cambiar esto dinámicamente
+    String lessonVideoFolder = 'lesson-video';
+    String fileName = '$lessonVideoFolder/${courseId}_${DateTime.now().millisecondsSinceEpoch}.mp4';
     String? presignedUrl = await getPresignedUrl(fileName);
 
     if (presignedUrl == null) {
@@ -94,10 +95,16 @@ class VideoUploader {
     }
 
     bool success = await uploadVideoToS3(videoFile, presignedUrl);
-    if (success) {
-      print("Video subido correctamente!");
-    } else {
+    if (!success) {
       print("Hubo un problema en la subida.");
+      return;
+    }
+
+    try {
+      Lesson newLesson = await lessonRepository.createLesson(courseId, lessonTitle, fileName);
+      print("✅ Lección creada: ${newLesson.title}");
+    } catch (e) {
+      print("❌ Error al crear la lección: $e");
     }
   }
 }

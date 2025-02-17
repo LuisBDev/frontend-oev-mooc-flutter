@@ -37,8 +37,8 @@ class CourseEditableContent extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              course.category ?? "Sin categoría",
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 14, fontWeight: FontWeight.bold),
+              course.category!,
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -66,14 +66,22 @@ class CourseEditableContent extends ConsumerWidget {
             const SizedBox(height: 8),
             lessonProviderAsync.when(
                 data: (lessons) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: lessons.length,
-                    itemBuilder: (context, index) {
-                      final lesson = lessons[index];
-                      return _CustomCard(lesson: lesson);
-                    },
+                  if (lessons.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "No hay lecciones en este curso",
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    );
+                  }
+                  return SizedBox(
+                    height: 440, // Set a fixed height for the ListView
+                    child: ListView.builder(
+                      itemCount: lessons.length,
+                      itemBuilder: (context, index) {
+                        return _CustomCard(lesson: lessons[index]);
+                      },
+                    ),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -83,7 +91,8 @@ class CourseEditableContent extends ConsumerWidget {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   VideoUploader uploader = VideoUploader();
-                  await uploader.pickAndUploadVideo();
+                  await uploader.uploadLessonVideo(course.id, "Nueva Lección");
+                  ref.invalidate(lessonProvider(course.id));
                 },
                 icon: const Icon(Icons.add),
                 label: const Text("Agregar recurso"),
