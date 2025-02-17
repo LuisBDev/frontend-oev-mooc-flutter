@@ -9,7 +9,7 @@ class CourseMapper {
       benefits: json['benefits'] ?? '',
       targetAudience: json['targetAudience'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
-      category: json['category'] ?? '',
+      category: json['category'] ?? 'No category',
       level: json['level'] ?? '',
       price: json['price']?.toDouble() ?? 0.0,
       duration: json['duration'] ?? 0,

@@ -34,6 +34,8 @@ class CourseDetailPage extends ConsumerWidget {
   }
 
   Widget _buildCourseDetail(BuildContext context, WidgetRef ref, Course course) {
+    final loggedUser = ref.read(authProvider).token;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -69,8 +71,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.people, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("${course.totalStudents}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${course.totalStudents}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -79,8 +80,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.attach_money, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("S/. ${course.price}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("S/. ${course.price}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -89,8 +89,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.favorite, color: Colors.redAccent),
                     const SizedBox(height: 5),
-                    Text("${course.favorite}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${course.favorite}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -107,21 +106,22 @@ class CourseDetailPage extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Botón de Inscribirse
-          Center(
-            child: ElevatedButton(
-              onPressed: () =>
-                _showEnrollmentConfirmation(context, ref, course.id),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Visibility(
+            visible: loggedUser?.role == 'STUDENT',
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () => _showEnrollmentConfirmation(context, ref, course.id),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Inscribirse',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                child: const Text(
+                  'Inscribirse',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ),

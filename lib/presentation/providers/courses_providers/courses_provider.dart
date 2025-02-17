@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/domain/entities/dto/request/course_dto.dart';
-import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_progress_model.dart';
 import 'package:oev_mobile_app/domain/repositories/course_repository.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/course_repository_provider.dart';
@@ -29,7 +29,7 @@ final enrolledCoursesProvider = FutureProvider.autoDispose<List<CourseEnrolled>>
   return repository.getEnrolledCourses(auth.token!.id);
 });
 
-final lessonsByUserIdAndCourseIdProvider = FutureProvider.family.autoDispose<List<Lesson>, int>((ref, courseId) async {
+final lessonsByUserIdAndCourseIdProvider = FutureProvider.family.autoDispose<List<LessonProgress>, int>((ref, courseId) async {
   final repository = ref.watch(courseRepositoryProvider);
   final auth = ref.watch(authProvider);
   return repository.getLessonsByUserIdAndCourseId(auth.token!.id, courseId);

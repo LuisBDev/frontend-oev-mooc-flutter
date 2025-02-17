@@ -1,34 +1,34 @@
 class Lesson {
   final int id;
-  final int userId;
-  final int lessonId;
-  final String lessonTitle;
-  final String? lessonVideoUrl;
+  final String title;
+  final String videoKey;
   final int? duration;
-  final String status;
-  final DateTime? completedAt;
+  final int? sequenceOrder;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final int courseId;
 
   Lesson({
     required this.id,
-    required this.userId,
-    required this.lessonId,
-    required this.lessonTitle,
-    this.lessonVideoUrl,
+    required this.title,
+    required this.videoKey,
     this.duration,
-    required this.status,
-    this.completedAt,
+    this.sequenceOrder,
+    required this.createdAt,
+    this.updatedAt,
+    required this.courseId,
   });
 
   static Lesson fromJson(Map<String, dynamic> json) {
     return Lesson(
       id: json['id'],
-      userId: json['userId'],
-      lessonId: json['lessonId'],
-      lessonTitle: json['lessonTitle'],
-      lessonVideoUrl: json['lessonVideoUrl'],
+      title: json['title'],
+      videoKey: json['videoKey'],
       duration: json['duration'],
-      status: json['status'],
-      completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt']) : null,
+      sequenceOrder: json['sequenceOrder'] ?? 0,
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      courseId: json['courseId'],
     );
   }
 }

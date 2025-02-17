@@ -7,6 +7,7 @@ import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
+import 'package:oev_mobile_app/presentation/screens/course/course_editable_content.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final showCompletedProvider = StateProvider<bool>((ref) => false);
@@ -106,6 +107,14 @@ class MyCourses extends ConsumerWidget {
               ? enrolledCoursesAsync.when(
                   data: (courses) {
                     var filteredCourses = courses.where((course) => course.courseName.toLowerCase().contains(searchQuery.toLowerCase()) && (!showCompleted || course.progress == 100)).toList();
+                    if (filteredCourses.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No hay cursos inscritos',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      );
+                    }
                     return GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -129,20 +138,42 @@ class MyCourses extends ConsumerWidget {
               : publishedCoursesAsync.when(
                   data: (courses) {
                     final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
-                    return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 4 / 4.6,
+                    if (filteredCourses.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No hay cursos publicados',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      );
+                    }
+
+                    return SizedBox(
+                      height: 440, // Ajusta la altura según necesidad
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 4 / 4.2,
+                          ),
+                          itemCount: filteredCourses.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CourseEditableContent(course: filteredCourses[index]),
+                                  ),
+                                );
+                              },
+                              child: PublishedCourseCard(publishedCourse: filteredCourses[index]),
+                            );
+                          },
+                        ),
                       ),
-                      itemCount: filteredCourses.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          // onTap: () => context.push('/course_content', extra: filteredCourses[index]),
-                          child: PublishedCourseCard(publishedCourse: filteredCourses[index]),
-                        );
-                      },
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
@@ -174,9 +205,9 @@ class PublishedCourseCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                publishedCourse.imageUrl ?? 'https://via.placeholder.com/150',
+                publishedCourse.imageUrl!,
                 width: double.infinity,
-                height: 120,
+                height: 130,
                 fit: BoxFit.cover,
               ),
             ),
@@ -191,7 +222,7 @@ class PublishedCourseCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
 
-            // Descripción del curso
+            // Instructor del curso
             Text(
               publishedCourse.instructorName,
               style: const TextStyle(fontSize: 12, color: Colors.grey),

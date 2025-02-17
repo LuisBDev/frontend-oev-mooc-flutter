@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
-import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_progress_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
 
@@ -59,9 +59,7 @@ class CourseContent extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => {
-                      ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
-                    },
+                    onPressed: () => ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
                     icon: const Icon(Icons.refresh_rounded, color: Colors.white),
                   ),
                 ],
@@ -138,7 +136,7 @@ class CourseContent extends ConsumerWidget {
 }
 
 class LessonCard extends StatelessWidget {
-  final Lesson lesson;
+  final LessonProgress lesson;
   final int index;
 
   const LessonCard({super.key, required this.lesson, required this.index});

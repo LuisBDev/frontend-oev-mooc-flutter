@@ -6,7 +6,7 @@ import 'package:oev_mobile_app/infrastructure/datasources/enrollment_datasource_
 import 'package:oev_mobile_app/infrastructure/repositories/enrollment_repository_impl.dart';
 
 // Datasource Provider
-final enrollmentDatasourceProvider = Provider<EnrollmentDataSource>((ref) {
+final enrollmentDatasourceProvider = Provider<LessonDatasource>((ref) {
   return EnrollmentDatasourceImpl();
 });
 

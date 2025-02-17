@@ -3,7 +3,7 @@ import 'package:oev_mobile_app/domain/datasources/enrollment_datasource.dart';
 import '../../config/constants/environment.dart';
 import '../../domain/errors/auth_errors.dart';
 
-class EnrollmentDatasourceImpl implements EnrollmentDataSource {
+class EnrollmentDatasourceImpl implements LessonDatasource {
   final dio = Dio(
     BaseOptions(
       baseUrl: Environment.apiUrl,
