@@ -17,4 +17,9 @@ class LessonRepositoryImpl implements LessonRepository {
   Future<Lesson> createLesson(int courseId, String title, String videoKey) {
     return dataSource.createLesson(courseId, title, videoKey);
   }
+
+  @override
+  Future<void> deleteLessonById(int lessonId) {
+    return dataSource.deleteLessonById(lessonId);
+  }
 }

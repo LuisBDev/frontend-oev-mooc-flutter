@@ -78,8 +78,8 @@ class VideoUploader {
   }
 
   /// Selecciona, sube video y crea la lección
-  Future<void> uploadLessonVideo(int courseId, String lessonTitle) async {
-    File? videoFile = await pickVideo();
+  Future<void> uploadLessonVideo(int courseId, String lessonTitle, File? videoFile) async {
+    // File? videoFile = await pickVideo();
     if (videoFile == null) {
       print("No se seleccionó ningún video.");
       return;

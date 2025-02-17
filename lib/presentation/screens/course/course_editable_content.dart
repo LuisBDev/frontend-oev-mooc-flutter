@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import 'package:oev_mobile_app/infrastructure/helpers/video_uploader.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/lesson_provider.dart';
+
+final snackbarMessageProvider = StateProvider<String?>((ref) => null);
 
 class CourseEditableContent extends ConsumerWidget {
   final Course course;
@@ -13,6 +17,20 @@ class CourseEditableContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lessonProviderAsync = ref.watch(lessonProvider(course.id));
+
+    ref.listen<String?>(snackbarMessageProvider, (previous, next) {
+      if (next != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next, style: const TextStyle(color: Colors.white)),
+            backgroundColor: Colors.blueAccent,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
@@ -79,7 +97,7 @@ class CourseEditableContent extends ConsumerWidget {
                     child: ListView.builder(
                       itemCount: lessons.length,
                       itemBuilder: (context, index) {
-                        return _CustomCard(lesson: lessons[index]);
+                        return _CustomLessonCard(lesson: lessons[index]);
                       },
                     ),
                   );
@@ -89,11 +107,7 @@ class CourseEditableContent extends ConsumerWidget {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  VideoUploader uploader = VideoUploader();
-                  await uploader.uploadLessonVideo(course.id, "Nueva Lección");
-                  ref.invalidate(lessonProvider(course.id));
-                },
+                onPressed: () => _showAddResourceModal(context, ref, course.id),
                 icon: const Icon(Icons.add),
                 label: const Text("Agregar recurso"),
                 style: ElevatedButton.styleFrom(
@@ -110,15 +124,112 @@ class CourseEditableContent extends ConsumerWidget {
   }
 }
 
-class _CustomCard extends StatelessWidget {
-  const _CustomCard({
-    required this.lesson,
-  });
+void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
+  final TextEditingController titleController = TextEditingController();
+  File? selectedVideo;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        // Use StatefulBuilder for state changes within the dialog
+        builder: (context, setState) {
+          // Add setState for updating the button
+          return AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text(
+              'Agregar Lección',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Título de la lección',
+                    labelStyle: TextStyle(color: Colors.grey),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+
+                        if (pickedFile != null) {
+                          setState(() {
+                            // Update the state when a video is selected
+                            selectedVideo = File(pickedFile.path);
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: selectedVideo != null ? Colors.blue : Colors.grey,
+                      ),
+                      child: Text(
+                        selectedVideo != null ? 'Video Seleccionado' : 'Seleccionar Video', // Conditional text
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    Visibility(
+                        visible: selectedVideo != null,
+                        child: const Icon(
+                          Icons.done_all_rounded,
+                          color: Colors.blue,
+                        )),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey,
+                ),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (titleController.text.isNotEmpty && selectedVideo != null) {
+                    final VideoUploader uploader = VideoUploader();
+                    await uploader.uploadLessonVideo(courseId, titleController.text, selectedVideo);
+                    ref.invalidate(lessonProvider(courseId));
+                    Navigator.of(context).pop();
+                  }
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                ),
+                child: const Text('Guardar'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+class _CustomLessonCard extends ConsumerWidget {
+  const _CustomLessonCard({required this.lesson});
 
   final Lesson lesson;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       color: Colors.grey[850],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -131,7 +242,11 @@ class _CustomCard extends StatelessWidget {
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.remove_circle, color: Colors.white),
-              onPressed: () {},
+              onPressed: () async {
+                await ref.read(lessonDeleteProvider(lesson.id).future);
+                ref.invalidate(lessonProvider(lesson.courseId));
+                ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
+              },
             ),
           ],
         ),

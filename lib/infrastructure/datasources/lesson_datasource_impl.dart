@@ -5,7 +5,7 @@ import '../../config/constants/environment.dart';
 import '../../domain/errors/auth_errors.dart';
 
 class LessonDatasourceImpl implements LessonDataSource {
-  final dio = Dio(
+  final _dio = Dio(
     BaseOptions(
       baseUrl: Environment.apiUrl,
     ),
@@ -14,7 +14,7 @@ class LessonDatasourceImpl implements LessonDataSource {
   @override
   Future<List<Lesson>> getLessonsByCourseId(int courseId) async {
     try {
-      final response = await dio.get('/lesson/findLessonsByCourseId/$courseId');
+      final response = await _dio.get('/lesson/findLessonsByCourseId/$courseId');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((json) => Lesson.fromJson(json)).toList();
@@ -37,7 +37,7 @@ class LessonDatasourceImpl implements LessonDataSource {
   @override
   Future<Lesson> createLesson(int courseId, String title, String videoKey) async {
     try {
-      final response = await dio.post(
+      final response = await _dio.post(
         '/lesson/create/$courseId',
         data: {
           "title": title,
@@ -50,6 +50,23 @@ class LessonDatasourceImpl implements LessonDataSource {
       } else {
         throw Exception('Error al crear la lección');
       }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw WrongCredentials();
+      }
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw ConnectionTimeout();
+      }
+      throw CustomError('Something went wrong');
+    } catch (e) {
+      throw CustomError('Something went wrong');
+    }
+  }
+
+  @override
+  Future<void> deleteLessonById(int lessonId) {
+    try {
+      return _dio.delete('/lesson/delete/$lessonId');
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         throw WrongCredentials();
