@@ -103,4 +103,15 @@ class CourseDatasourceImpl implements CourseDatasource {
       throw Exception('Error en la petición: $e');
     }
   }
+  @override
+  Future<void> deleteCourse(int courseId) async {
+    try {
+      final response = await _dio.delete('/course/delete/$courseId');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Error al eliminar el curso');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
 }

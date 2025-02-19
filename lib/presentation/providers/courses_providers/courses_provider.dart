@@ -39,7 +39,26 @@ final addCourseProvider = StateNotifierProvider<AddCourseNotifier, AsyncValue<vo
   final repository = ref.watch(courseRepositoryProvider);
   return AddCourseNotifier(repository);
 });
+final deleteCourseProvider = StateNotifierProvider<DeleteCourseNotifier, AsyncValue<void>>((ref) {
+  final repository = ref.watch(courseRepositoryProvider);
+  return DeleteCourseNotifier(repository);
+});
 
+class DeleteCourseNotifier extends StateNotifier<AsyncValue<void>> {
+  final CourseRepository repository;
+
+  DeleteCourseNotifier(this.repository) : super(const AsyncData(null));
+
+  Future<void> deleteCourse(int courseId) async {
+    state = const AsyncLoading();
+    try {
+      await repository.deleteCourse(courseId);
+      state = const AsyncData(null);
+    } catch (e) {
+      state = AsyncError(e.toString(), StackTrace.current);
+    }
+  }
+}
 class AddCourseNotifier extends StateNotifier<AsyncValue<void>> {
   final CourseRepository repository;
 

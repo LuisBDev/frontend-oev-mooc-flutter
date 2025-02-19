@@ -35,12 +35,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       },
     );
 
-    if (picked != null) {
-      setState(() {
-        expiryDate = DateFormat('MM/yy').format(picked);
-      });
+    setState(() {
+      expiryDate = DateFormat('MM/yy').format(picked!);
+    });
     }
-  }
 
   @override
   Widget build(BuildContext context) {

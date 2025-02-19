@@ -10,4 +10,5 @@ abstract class CourseDatasource {
   Future<Course> getCourseById(int courseId);
   Future<List<Course>> getCoursesPublishedByInstructor(int userId);
   Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId);
+  Future<void> deleteCourse(int courseId);
 }

@@ -15,8 +15,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
-  bool _isLoading = true;
+  int _selectedIndex = 0; 
   bool _showFilterChip = false; // Controla la visibilidad del Chip
 
   @override

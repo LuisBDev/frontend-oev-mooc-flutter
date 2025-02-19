@@ -23,3 +23,28 @@ final enrollmentProvider = FutureProvider.family<bool, Map<String, int>>((ref, d
   final courseId = data['courseId']!;
   return await repository.enrollUserInCourse(userId, courseId);
 });
+final enrolledUsersProvider = FutureProvider.family<List<Map<String, dynamic>>, int>((ref, courseId) async {
+  final repository = ref.read(enrollmentRepositoryProvider);
+  return repository.findEnrolledUsersByCourseId(courseId);
+});
+
+final deleteEnrollmentProvider = StateNotifierProvider<DeleteEnrollmentNotifier, AsyncValue<void>>((ref) {
+  final repository = ref.watch(enrollmentRepositoryProvider);
+  return DeleteEnrollmentNotifier(repository);
+});
+
+class DeleteEnrollmentNotifier extends StateNotifier<AsyncValue<void>> {
+  final EnrollmentRepository repository;
+
+  DeleteEnrollmentNotifier(this.repository) : super(const AsyncData(null));
+
+  Future<void> deleteEnrollment(int enrollmentId) async {
+    state = const AsyncLoading();
+    try {
+      await repository.deleteEnrollment(enrollmentId);
+      state = const AsyncData(null);
+    } catch (e) {
+      state = AsyncError(e.toString(), StackTrace.current);
+    }
+  }
+}

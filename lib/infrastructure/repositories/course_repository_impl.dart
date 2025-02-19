@@ -40,4 +40,8 @@ class CourseRepositoryImpl implements CourseRepository {
   Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId) {
     return courseDatasource.getLessonsByUserIdAndCourseId(userId, courseId);
   }
+  @override
+  Future<void> deleteCourse(int courseId) {
+    return courseDatasource.deleteCourse(courseId);
+  }
 }

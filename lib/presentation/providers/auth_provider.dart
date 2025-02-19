@@ -128,7 +128,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Verificar si el token está próximo a expirar (5 minutos antes)
     final exp = _getTokenExpiration(currentToken.token);
     if (exp != null &&
-        DateTime.now().isAfter(exp.subtract(Duration(minutes: 5)))) {
+        DateTime.now().isAfter(exp.subtract(const Duration(minutes: 5)))) {
       // Intentar renovar el token
       try {
         final newToken = await authRepository.checkAuthStatus(currentToken);

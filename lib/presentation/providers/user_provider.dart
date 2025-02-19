@@ -25,7 +25,7 @@ class UserUpdateNotifier extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
-      throw error;
+      rethrow;
     }
   }
 }
