@@ -70,18 +70,34 @@ class _VideoLessonScreenState extends State<VideoLessonScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: _isLoading || _chewieController == null
-            ? Container(
-                color: const Color(0xff1E1E2C),
-                child: const Center(
+      body: _isLoading || _chewieController == null
+          ? Container(
+              width: double.infinity,
+              color: const Color(0xff1E1E2C), // Fondo oscuro
+              child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )),
+            )
+          : Column(
+              children: [
+                AspectRatio(
+                  aspectRatio: _chewieController!.videoPlayerController.value.aspectRatio,
+                  child: Chewie(controller: _chewieController!),
+                ),
+                Expanded(
+                  child: Container(
+                    color: Colors.grey[300], // Color gris para diferenciar
+                    child: const Center(
+                      child: Text(
+                        'Espacio Transcripción',
+                        style: TextStyle(fontSize: 18, color: Colors.black54),
+                      ),
+                    ),
                   ),
                 ),
-              )
-            : Chewie(controller: _chewieController!),
-      ),
+              ],
+            ),
     );
   }
 }
