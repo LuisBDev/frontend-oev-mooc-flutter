@@ -5,7 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import 'package:oev_mobile_app/infrastructure/helpers/video_uploader.dart';
-import 'package:oev_mobile_app/presentation/providers/courses_providers/lesson_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
+import 'package:go_router/go_router.dart';
 
 final snackbarMessageProvider = StateProvider<String?>((ref) => null);
 
@@ -17,6 +20,8 @@ class CourseEditableContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lessonProviderAsync = ref.watch(lessonProvider(course.id));
+    final loggedUser = ref.read(authProvider).token;
+    final isInstructor = loggedUser?.role == 'INSTRUCTOR';
 
     ref.listen<String?>(snackbarMessageProvider, (previous, next) {
       if (next != null) {
@@ -35,9 +40,16 @@ class CourseEditableContent extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
       appBar: AppBar(
-        title: Text(course.name, style: const TextStyle(color: Colors.white)),
+        title: Text('Editar: ${course.name}', style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          if (isInstructor)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.white),
+              onPressed: () => _showDeleteConfirmation(context, ref, course.id),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -221,6 +233,53 @@ void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
       );
     },
   );
+}
+
+Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref, int courseId) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2C),
+        title: const Text('Confirmar eliminación', style: TextStyle(color: Colors.white)),
+        content: const Text('Esta acción eliminará el curso, todas sus lecciones y las inscripciones de los estudiantes. ¿Estás seguro de continuar?', style: TextStyle(color: Colors.white70)),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (result ?? false) {
+    // Mostrar diálogo de progreso
+
+    try {
+      await ref.read(deleteCourseProvider.notifier).deleteCourse(courseId);
+
+      // Cerrar diálogo de progreso y mostrar mensaje de éxito
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Curso eliminado correctamente')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      // Manejar error
+      if (context.mounted) {
+        Navigator.pop(context); // Cerrar diálogo de progreso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al eliminar el curso: $e')),
+        );
+      }
+    }
+  }
 }
 
 class _CustomLessonCard extends ConsumerWidget {

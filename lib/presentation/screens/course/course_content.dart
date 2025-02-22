@@ -5,6 +5,7 @@ import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/presentation/screens/lesson/video_lesson_screen.dart';
 
 class CourseContent extends ConsumerWidget {
   final CourseEnrolled courseEnrolled;
@@ -161,7 +162,12 @@ class LessonCard extends StatelessWidget {
           style: TextStyle(color: Colors.white70),
         ),
         onTap: () {
-          // Acción al tocar una lección
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VideoLessonScreen(lessonVideoKey: lesson.lessonVideoKey!),
+            ),
+          );
         },
       ),
     );
