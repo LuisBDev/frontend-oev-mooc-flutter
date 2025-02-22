@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
-import 'package:oev_mobile_app/presentation/providers/courses_providers/lesson_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/courses_providers/enrollment_provider.dart';
 

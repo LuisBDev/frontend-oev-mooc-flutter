@@ -7,7 +7,7 @@ import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
 import 'package:oev_mobile_app/infrastructure/helpers/video_uploader.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
-import 'package:oev_mobile_app/presentation/providers/courses_providers/lesson_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 import 'package:go_router/go_router.dart';
 
 final snackbarMessageProvider = StateProvider<String?>((ref) => null);
