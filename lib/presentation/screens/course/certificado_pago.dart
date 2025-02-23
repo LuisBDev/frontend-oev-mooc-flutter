@@ -22,6 +22,13 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   final String cuentaInterbancaria = '123-456-789-000';
   final String cuentaVisa = '987-654-321-000';
 
+  bool _isPaymentInfoComplete() {
+    return cardNumber.length == 16 &&
+        cardHolder.isNotEmpty &&
+        expiryDate != 'MM/AA' &&
+        expiryDate.isNotEmpty;
+  }
+
   Future<void> _selectExpiryDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
@@ -105,13 +112,19 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
             // Resumen de pago
             Text('Resumen de pago', style: _titleStyle),
             const SizedBox(height: 5),
+            Text('Curso: ${widget.courseEnrolled.courseName}',
+                style: _textStyle),
+            Text('Instructor: ${widget.courseEnrolled.instructorName}',
+                style: _textStyle),
             Text('Costo: S/. 25', style: _textStyle),
             const SizedBox(height: 20),
-
             // Métodos de pago
             Text('Método de pago', style: _titleStyle),
             const SizedBox(height: 10),
             _buildPaymentMethods(),
+            // Cuadro separado con CCI si se elige transferencia bancaria
+            if (selectedPaymentMethod == 'Transferencia Bancaria')
+              _buildCCIBankInfo(),
 
             if (selectedPaymentMethod == 'Tarjeta de crédito/débito') ...[
               // Tarjeta de crédito
@@ -141,6 +154,9 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
                   Expanded(
                     child: _buildTextField(
                       'CVC',
+                      onChanged: (value) {
+                        setState(() {});
+                      },
                       isNumber: true,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -152,10 +168,9 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
                   Expanded(child: _buildDateField()),
                 ],
               ),
+              const SizedBox(height: 20),
+              _buildPayButton(),
             ],
-
-            const SizedBox(height: 20),
-            _buildPayButton(),
           ],
         ),
       ),
@@ -254,6 +269,37 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
     );
   }
 
+  Widget _buildCCIBankInfo() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              cuentaInterbancaria, // CCI genérico
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy, color: Colors.white),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: cuentaInterbancaria));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('CCI copiado al portapapeles')),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPaymentOption(String title, String asset) {
     return InkWell(
       onTap: () {
@@ -290,7 +336,12 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       child: TextField(
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         style: const TextStyle(color: Colors.white),
-        onChanged: onChanged,
+        onChanged: (value) {
+          setState(() {});
+          if (onChanged != null) {
+            onChanged(value);
+          }
+        },
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
           labelText: label,
@@ -307,14 +358,14 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
   }
 
   Widget _buildPayButton() {
+    bool isEnabled = _isPaymentInfoComplete();
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          _showPaymentCompletedDialog(); // Show the payment completed dialog
-        },
+        onPressed: isEnabled ? _showPaymentCompletedDialog : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
+          backgroundColor: isEnabled ? Colors.blue : Colors.grey,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
