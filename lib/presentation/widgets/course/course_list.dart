@@ -104,10 +104,14 @@ class CourseList extends ConsumerWidget {
             )),
         const SizedBox(height: 10),
         Expanded(
-          child: asyncCourses.when(
+          child: ref.watch(recommendedCoursesProvider).when(
             data: (courses) {
               // Filtrar los cursos según el término de búsqueda
-              final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+              final filteredCourses = courses
+                  .where((course) =>
+                      course.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                  .toList();
+
               if (filteredCourses.isEmpty) {
                 return const Center(
                   child: Text(

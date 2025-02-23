@@ -34,7 +34,10 @@ final lessonsByUserIdAndCourseIdProvider = FutureProvider.family.autoDispose<Lis
   final auth = ref.watch(authProvider);
   return repository.getLessonsByUserIdAndCourseId(auth.token!.id, courseId);
 });
-
+final recommendedCoursesProvider = FutureProvider.autoDispose<List<Course>>((ref) async {
+  final repository = ref.watch(courseRepositoryProvider);
+  return repository.getRecommendedCourses();
+});
 final addCourseProvider = StateNotifierProvider<AddCourseNotifier, AsyncValue<void>>((ref) {
   final repository = ref.watch(courseRepositoryProvider);
   return AddCourseNotifier(repository);
