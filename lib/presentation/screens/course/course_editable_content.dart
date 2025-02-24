@@ -9,7 +9,7 @@ import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 
-final snackbarMessageProvider = StateProvider<String?>((ref) => null);
+final snackbarMessageProvider = StateProvider<Map<String, dynamic>?>((ref) => null);
 
 class CourseEditableContent extends ConsumerWidget {
   final Course course;
@@ -22,19 +22,23 @@ class CourseEditableContent extends ConsumerWidget {
     final loggedUser = ref.read(authProvider).token;
     final isInstructor = loggedUser?.role == 'INSTRUCTOR';
 
-    ref.listen<String?>(snackbarMessageProvider, (previous, next) {
+    ref.listen<Map<String, dynamic>?>(snackbarMessageProvider, (previous, next) {
       if (next != null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(
               SnackBar(
-                content: Text(next, style: const TextStyle(color: Colors.white)),
+                content: Text(next['message'], style: const TextStyle(color: Colors.white)),
                 backgroundColor: Colors.blueAccent,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 1),
               ),
             )
             .closed
-            .then((_) => Navigator.pop(context));
+            .then((_) {
+          if (next['shouldPop'] == true) {
+            Navigator.pop(context);
+          }
+        });
         ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
       }
     });
@@ -264,9 +268,9 @@ Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref, int co
     try {
       await ref.read(deleteCourseProvider.notifier).deleteCourse(courseId);
       ref.invalidate(coursesPublishedByInstructorProvider);
-      ref.read(snackbarMessageProvider.notifier).state = "Curso eliminado correctamente";
+      ref.read(snackbarMessageProvider.notifier).state = {"message": "Curso eliminado correctamente", "shouldPop": true};
     } catch (e) {
-      ref.read(snackbarMessageProvider.notifier).state = "Error al eliminar el curso";
+      ref.read(snackbarMessageProvider.notifier).state = {"message": "Error al eliminar el curso", "shouldPop": false};
     }
   }
 }
@@ -291,9 +295,12 @@ class _CustomLessonCard extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.remove_circle, color: Colors.white),
               onPressed: () async {
-                await ref.read(lessonDeleteProvider(lesson.id).future);
-                ref.invalidate(lessonProvider(lesson.courseId));
-                ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
+                final result = await deleteLessonModal(context);
+                if (result ?? false) {
+                  await ref.read(lessonDeleteProvider(lesson.id).future);
+                  ref.invalidate(lessonProvider(lesson.courseId));
+                  ref.read(snackbarMessageProvider.notifier).state = {"message": "Lección eliminada correctamente", "shouldPop": false};
+                }
               },
             ),
           ],
