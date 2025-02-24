@@ -8,7 +8,6 @@ import 'package:oev_mobile_app/infrastructure/helpers/video_uploader.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
-import 'package:go_router/go_router.dart';
 
 final snackbarMessageProvider = StateProvider<String?>((ref) => null);
 
@@ -25,14 +24,17 @@ class CourseEditableContent extends ConsumerWidget {
 
     ref.listen<String?>(snackbarMessageProvider, (previous, next) {
       if (next != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next, style: const TextStyle(color: Colors.white)),
-            backgroundColor: Colors.blueAccent,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+              SnackBar(
+                content: Text(next, style: const TextStyle(color: Colors.white)),
+                backgroundColor: Colors.blueAccent,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 1),
+              ),
+            )
+            .closed
+            .then((_) => Navigator.pop(context));
         ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
       }
     });
@@ -259,25 +261,12 @@ Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref, int co
 
   if (result ?? false) {
     // Mostrar diálogo de progreso
-
     try {
       await ref.read(deleteCourseProvider.notifier).deleteCourse(courseId);
-
-      // Cerrar diálogo de progreso y mostrar mensaje de éxito
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Curso eliminado correctamente')),
-        );
-        Navigator.pop(context);
-      }
+      ref.invalidate(coursesPublishedByInstructorProvider);
+      ref.read(snackbarMessageProvider.notifier).state = "Curso eliminado correctamente";
     } catch (e) {
-      // Manejar error
-      if (context.mounted) {
-        Navigator.pop(context); // Cerrar diálogo de progreso
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar el curso: $e')),
-        );
-      }
+      ref.read(snackbarMessageProvider.notifier).state = "Error al eliminar el curso";
     }
   }
 }
