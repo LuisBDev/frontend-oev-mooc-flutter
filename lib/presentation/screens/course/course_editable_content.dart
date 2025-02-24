@@ -291,12 +291,9 @@ class _CustomLessonCard extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.remove_circle, color: Colors.white),
               onPressed: () async {
-                final result = await deleteLessonModal(context);
-                if (result ?? false) {
-                  await ref.read(lessonDeleteProvider(lesson.id).future);
-                  ref.invalidate(lessonProvider(lesson.courseId));
-                  ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
-                }
+                await ref.read(lessonDeleteProvider(lesson.id).future);
+                ref.invalidate(lessonProvider(lesson.courseId));
+                ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
               },
             ),
           ],

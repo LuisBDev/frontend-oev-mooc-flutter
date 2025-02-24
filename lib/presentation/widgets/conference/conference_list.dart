@@ -32,8 +32,8 @@ class ConferenceList extends StatefulWidget {
 
 class _ConferenceListState extends State<ConferenceList> {
   String _searchTerm = '';
-  String _filter = 'Todos';
-  bool _isLoading = false;
+  final String _filter = 'Todos';
+  final bool _isLoading = false;
 
   final List<Course> _courses = [
     Course(
@@ -84,9 +84,12 @@ class _ConferenceListState extends State<ConferenceList> {
 
     // Filtrar cursos según el buscador y el filtro activo
     List<Course> filteredCourses = _courses.where((curso) {
-      bool matchesSearch = curso.name.toLowerCase().contains(_searchTerm.toLowerCase());
-      if (_filter == 'Completados') return matchesSearch && curso.progress == 100;
-      if (_filter == 'Certificados') return matchesSearch && curso.hasCertificate;
+      bool matchesSearch =
+          curso.name.toLowerCase().contains(_searchTerm.toLowerCase());
+      if (_filter == 'Completados')
+        return matchesSearch && curso.progress == 100;
+      if (_filter == 'Certificados')
+        return matchesSearch && curso.hasCertificate;
       return matchesSearch;
     }).toList();
 
@@ -100,7 +103,10 @@ class _ConferenceListState extends State<ConferenceList> {
           child: Center(
             child: Text(
               'Conferencias',
-              style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -146,13 +152,15 @@ class _ConferenceListState extends State<ConferenceList> {
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2, // 2 tarjetas por fila
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                       childAspectRatio: 0.85, // Ajuste para evitar overflow
                     ),
-                    itemCount: filteredCourses.length.clamp(0, 6), // Máximo 3 filas (6 cursos)
+                    itemCount: filteredCourses.length
+                        .clamp(0, 6), // Máximo 3 filas (6 cursos)
                     itemBuilder: (context, index) {
                       return CursoCard(filteredCourses[index]);
                     },
@@ -178,7 +186,8 @@ class CursoCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ConferenceScreen(curso: curso), // Pasa el curso seleccionado
+            builder: (context) =>
+                ConferenceScreen(curso: curso), // Pasa el curso seleccionado
           ),
         );
       },
@@ -213,7 +222,10 @@ class CursoCard extends StatelessWidget {
                   children: [
                     Text(
                       curso.name,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

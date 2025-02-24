@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0; 
+  int _selectedIndex = 0;
   bool _showFilterChip = false; // Controla la visibilidad del Chip
 
   @override
@@ -41,7 +41,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
               onPressed: () {
                 // Acción para el ícono de filtrado
                 setState(() {
-                  _showFilterChip = true; // Mostrar el Chip al presionar el filtro
+                  _showFilterChip =
+                      true; // Mostrar el Chip al presionar el filtro
                 });
               },
               icon: const Icon(Icons.filter_list, color: Colors.white),

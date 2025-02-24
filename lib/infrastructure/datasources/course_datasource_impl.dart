@@ -84,7 +84,8 @@ class CourseDatasourceImpl implements CourseDatasource {
         final List<dynamic> data = response.data;
         return data.map((json) => CourseMapper.userJsonToEntity(json)).toList();
       } else {
-        throw Exception('Error al cargar los cursos publicados por el instructor');
+        throw Exception(
+            'Error al cargar los cursos publicados por el instructor');
       }
     } catch (e) {
       throw Exception('Error en la petición: $e');
@@ -92,9 +93,11 @@ class CourseDatasourceImpl implements CourseDatasource {
   }
 
   @override
-  Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId) async {
+  Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(
+      int userId, int courseId) async {
     try {
-      final response = await _dio.get('/user-lesson-progress/user/$userId/course/$courseId');
+      final response =
+          await _dio.get('/user-lesson-progress/user/$userId/course/$courseId');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((json) => LessonProgress.fromJson(json)).toList();
