@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/courses_providers/enrollment_provider.dart';
 
@@ -13,6 +14,8 @@ class CourseDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final courseAsync = ref.watch(courseByIdProvider(courseId));
+    final loggedUser = ref.read(authProvider).token;
+    final isInstructor = loggedUser?.role == 'INSTRUCTOR';
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C),
@@ -34,6 +37,8 @@ class CourseDetailPage extends ConsumerWidget {
   }
 
   Widget _buildCourseDetail(BuildContext context, WidgetRef ref, Course course) {
+    final loggedUser = ref.read(authProvider).token;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -69,8 +74,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.people, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("${course.totalStudents}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${course.totalStudents}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -79,8 +83,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.attach_money, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("S/. ${course.price}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("S/. ${course.price}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -89,8 +92,7 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.favorite, color: Colors.redAccent),
                     const SizedBox(height: 5),
-                    Text("${course.favorite}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${course.favorite}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -107,21 +109,22 @@ class CourseDetailPage extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Botón de Inscribirse
-          Center(
-            child: ElevatedButton(
-              onPressed: () =>
-                _showEnrollmentConfirmation(context, ref, course.id),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Visibility(
+            visible: loggedUser?.role == 'STUDENT',
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () => _showEnrollmentConfirmation(context, ref, course.id),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Inscribirse',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                child: const Text(
+                  'Inscribirse',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ),

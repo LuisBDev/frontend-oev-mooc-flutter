@@ -46,12 +46,10 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
       },
     );
 
-    if (picked != null) {
-      setState(() {
-        expiryDate = DateFormat('MM/yy').format(picked);
-      });
+    setState(() {
+      expiryDate = DateFormat('MM/yy').format(picked!);
+    });
     }
-  }
 
   void _showPaymentCompletedDialog() {
     showDialog(

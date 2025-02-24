@@ -4,7 +4,7 @@ import 'package:oev_mobile_app/domain/datasources/course_datasource.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/domain/entities/dto/request/course_dto.dart';
-import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_progress_model.dart';
 import 'package:oev_mobile_app/infrastructure/mappers/course_mapper.dart';
 
 class CourseDatasourceImpl implements CourseDatasource {
@@ -91,17 +91,28 @@ class CourseDatasourceImpl implements CourseDatasource {
   }
 
   @override
-  Future<List<Lesson>> getLessonsByUserIdAndCourseId(
+  Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(
       int userId, int courseId) async {
-    // the endpoit is: /user-lesson-progress/user/3/course/1, implement it
     try {
       final response =
           await _dio.get('/user-lesson-progress/user/$userId/course/$courseId');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        return data.map((json) => Lesson.fromJson(json)).toList();
+        return data.map((json) => LessonProgress.fromJson(json)).toList();
       } else {
         throw Exception('Error al cargar las lecciones');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteCourse(int courseId) async {
+    try {
+      final response = await _dio.delete('/course/delete/$courseId');
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Error al eliminar el curso');
       }
     } catch (e) {
       throw Exception('Error en la petición: $e');

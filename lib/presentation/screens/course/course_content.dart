@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
-import 'package:oev_mobile_app/domain/entities/lesson/lesson_model.dart';
+import 'package:oev_mobile_app/domain/entities/lesson/lesson_progress_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/presentation/screens/lesson/video_lesson_screen.dart';
 
 class CourseContent extends ConsumerWidget {
   final CourseEnrolled courseEnrolled;
@@ -59,10 +60,9 @@ class CourseContent extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => {
-                      ref.refresh(lessonsByUserIdAndCourseIdProvider(
-                          courseEnrolled.courseId)),
-                    },
+                    onPressed: () => ref.refresh(
+                        lessonsByUserIdAndCourseIdProvider(
+                            courseEnrolled.courseId)),
                     icon:
                         const Icon(Icons.refresh_rounded, color: Colors.white),
                   ),
@@ -149,7 +149,7 @@ class CourseContent extends ConsumerWidget {
 }
 
 class LessonCard extends StatelessWidget {
-  final Lesson lesson;
+  final LessonProgress lesson;
   final int index;
 
   const LessonCard({super.key, required this.lesson, required this.index});
@@ -176,7 +176,13 @@ class LessonCard extends StatelessWidget {
           style: TextStyle(color: Colors.white70),
         ),
         onTap: () {
-          // Acción al tocar una lección
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  VideoLessonScreen(lessonVideoKey: lesson.lessonVideoKey!),
+            ),
+          );
         },
       ),
     );
