@@ -10,12 +10,24 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 30, 30, 44),
-      body: _LoginForm(),
+    return Scaffold(
+      // Eliminamos el backgroundColor y lo movemos al body
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondosm.png'), // Ruta de la imagen
+            fit: BoxFit.cover, // Ajusta la imagen para cubrir todo el fondo
+          ),
+        ),
+        child: const _LoginForm(), // Tu formulario de login
+      ),
     );
   }
 }
+
+
+
 
 class _LoginForm extends ConsumerWidget {
   const _LoginForm();
@@ -107,7 +119,7 @@ class _LoginForm extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                   validator: null,
                 ),
               ],
@@ -143,7 +155,7 @@ class _LoginForm extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.black),
                         validator: null,
                       )
                     ],
