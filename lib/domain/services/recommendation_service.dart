@@ -1,4 +1,5 @@
-import 'dart:math'; 
+import 'dart:math';
+
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 
 class RecommendationService {

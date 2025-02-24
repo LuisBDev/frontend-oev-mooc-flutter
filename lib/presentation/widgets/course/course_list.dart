@@ -16,6 +16,7 @@ class CourseList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+    final asyncCourses = ref.watch(coursesProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final loggedUser = ref.read(authProvider).token;
 
@@ -24,8 +25,7 @@ class CourseList extends ConsumerWidget {
         const SizedBox(height: 20),
         Text(
           'Bienvenido, ${loggedUser?.name ?? 'User'}',
-          style: const TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           'Tenemos sugerencias para ti basadas en tus intereses',
@@ -69,10 +69,7 @@ class CourseList extends ConsumerWidget {
             children: [
               const Text(
                 'Cursos',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 onPressed: () => {
@@ -98,43 +95,38 @@ class CourseList extends ConsumerWidget {
             )),
         const SizedBox(height: 10),
         Expanded(
-          child: ref.watch(recommendedCoursesProvider).when(
-                data: (courses) {
-                  // Filtrar los cursos según el término de búsqueda
-                  final filteredCourses = courses
-                      .where((course) => course.name
-                          .toLowerCase()
-                          .contains(searchQuery.toLowerCase()))
-                      .toList();
+          child: asyncCourses.when(
+            data: (courses) {
+              // Filtrar los cursos según el término de búsqueda
+              final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+              if (filteredCourses.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No hay cursos publicados',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                );
+              }
 
-                  if (filteredCourses.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No hay cursos publicados',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 4 / 4.4,
-                      ),
-                      itemCount: filteredCourses.length,
-                      itemBuilder: (context, index) {
-                        return CourseCard(course: filteredCourses[index]);
-                      },
-                    ),
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(child: Text('Error: $error')),
-              ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 4 / 4.4,
+                  ),
+                  itemCount: filteredCourses.length,
+                  itemBuilder: (context, index) {
+                    return CourseCard(course: filteredCourses[index]);
+                  },
+                ),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(child: Text('Error: $error')),
+          ),
         ),
       ],
     );
