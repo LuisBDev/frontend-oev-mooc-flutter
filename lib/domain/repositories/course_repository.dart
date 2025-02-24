@@ -11,4 +11,5 @@ abstract class CourseRepository {
   Future<List<Course>> getCoursesPublishedByInstructor(int userId);
   Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId);
   Future<void> deleteCourse(int courseId);
+  Future<List<Course>> getRecommendedCourses();
 }

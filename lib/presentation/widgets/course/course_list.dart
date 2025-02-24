@@ -5,6 +5,7 @@ import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_
 import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_slider.dart';
 
 // Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
@@ -31,17 +32,7 @@ class CourseList extends ConsumerWidget {
           style: TextStyle(color: Colors.white70),
         ),
         const SizedBox(height: 20),
-        Container(
-          height: 180,
-          width: 410,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: const DecorationImage(
-              image: AssetImage('assets/images/image_carrusel.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
+        const RecommendedCoursesSlider(),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),

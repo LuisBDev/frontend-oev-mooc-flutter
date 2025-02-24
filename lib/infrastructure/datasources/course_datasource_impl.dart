@@ -117,4 +117,42 @@ class CourseDatasourceImpl implements CourseDatasource {
       throw Exception('Error en la petición: $e');
     }
   }
+  @override
+  Future<int> getEnrolledUsersCount(int courseId) async {
+    try {
+      final response = await _dio.get('/enrollment/findEnrolledUsersByCourseId/$courseId');
+      if (response.statusCode == 200) {
+        final List<dynamic> enrolledUsers = response.data;
+        return enrolledUsers.length;
+      } else {
+        throw Exception('Error al obtener el número de usuarios inscritos');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
+
+  @override
+  Future<List<Course>> getRecommendedCourses() async {
+    try {
+      // Get all courses first
+      final allCourses = await getCourses();
+      
+      // Get enrollment counts for each course
+      final coursesWithEnrollments = await Future.wait(
+        allCourses.map((course) async {
+          final enrollmentCount = await getEnrolledUsersCount(course.id);
+          return MapEntry(course, enrollmentCount);
+        }),
+      );
+
+      // Sort courses by enrollment count
+      coursesWithEnrollments.sort((a, b) => b.value.compareTo(a.value));
+
+      // Return sorted courses
+      return coursesWithEnrollments.map((entry) => entry.key).toList();
+    } catch (e) {
+      throw Exception('Error al obtener cursos recomendados: $e');
+    }
+  }
 }

@@ -30,7 +30,10 @@ class CourseRepositoryImpl implements CourseRepository {
   Future<Course> getCourseById(int courseId) {
     return courseDatasource.getCourseById(courseId);
   }
-
+  @override
+  Future<List<Course>> getRecommendedCourses() {
+    return courseDatasource.getRecommendedCourses();
+  }
   @override
   getCoursesPublishedByInstructor(int id) {
     return courseDatasource.getCoursesPublishedByInstructor(id);
