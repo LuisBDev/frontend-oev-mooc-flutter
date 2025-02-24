@@ -71,16 +71,20 @@ class _CertificadoPagoScreenState extends State<CertificadoPagoScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Close the payment completed dialog
-                // Navegar al comprobante de pago
+                Navigator.of(context).pop(); // Cierra el diálogo
+
+                // Generar un número de transacción único (ejemplo simple)
+                String transactionNumber =
+                    DateTime.now().millisecondsSinceEpoch.toString();
+
+                // Navegar al comprobante de pago con los datos correctos
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ComprobantePagoScreen(
-                      courseName:
-                          'Flutter Course', // Pass the required arguments
-                      transactionNumber: 'XYZ123',
+                      courseEnrolled:
+                          widget.courseEnrolled, // Pasar el objeto completo
+                      transactionNumber: transactionNumber,
                     ),
                   ),
                 );

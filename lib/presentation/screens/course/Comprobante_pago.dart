@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Necesario para formatear la fecha
+import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
+import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 
 class ComprobantePagoScreen extends StatelessWidget {
-  final String courseName;
+  final CourseEnrolled courseEnrolled;
   final String transactionNumber;
   final double totalAmount = 25.0; // Monto total en soles
 
   // Constructor para aceptar datos
   const ComprobantePagoScreen({
     super.key,
-    required this.courseName, // Nombre del curso
+    required this.courseEnrolled, // Objeto que contiene el nombre del curso
     required this.transactionNumber, // Número de transacción
   });
 
@@ -44,8 +46,8 @@ class ComprobantePagoScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Información del curso, como una sección más destacada
-            _buildInfoSection('Curso', courseName),
+            // Información del curso
+            _buildInfoSection('Curso', courseEnrolled.courseName),
             const SizedBox(height: 20),
 
             // Detalles del pago
@@ -65,29 +67,28 @@ class ComprobantePagoScreen extends StatelessWidget {
             _buildInfoSection('Monto Total', 'S/ $totalAmount'),
             const SizedBox(height: 30),
 
-            // Botón para regresar a la lista de cursos
+// Botón para regresar al curso
             SizedBox(
-              width: double
-                  .infinity, // Asegura que el botón ocupe todo el ancho disponible
+              width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Redirige a la pantalla de Mis Cursos
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MyCoursesScreen(),
+                      builder: (context) =>
+                          CourseContent(courseEnrolled: courseEnrolled),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.blueGrey, // Color del botón
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Regresar a lista de cursos',
+                child: const Text('Regresar al curso',
                     style: TextStyle(fontSize: 16)),
               ),
             ),
@@ -146,19 +147,4 @@ class ComprobantePagoScreen extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.normal,
       );
-}
-
-// Asegúrate de tener esta pantalla en tu código.
-class MyCoursesScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mis Cursos'),
-      ),
-      body: Center(
-        child: Text('Aquí va la lista de cursos'),
-      ),
-    );
-  }
 }
