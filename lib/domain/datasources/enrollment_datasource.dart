@@ -1,5 +1,5 @@
-abstract class LessonDatasource {
+abstract class EnrollmentDatasource {
   Future<bool> enrollUserInCourse(int userId, int courseId);
   Future<List<Map<String, dynamic>>> findEnrolledUsersByCourseId(int courseId);
-  Future<void> deleteEnrollment(int enrollmentId);
+  Future<void> deleteEnrollmentById(int enrollmentId);
 }

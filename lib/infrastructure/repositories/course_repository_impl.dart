@@ -9,7 +9,8 @@ import 'package:oev_mobile_app/infrastructure/datasources/course_datasource_impl
 class CourseRepositoryImpl implements CourseRepository {
   final CourseDatasource courseDatasource;
 
-  CourseRepositoryImpl({CourseDatasource? courseDatasource}) : courseDatasource = courseDatasource ?? CourseDatasourceImpl();
+  CourseRepositoryImpl({CourseDatasource? courseDatasource})
+      : courseDatasource = courseDatasource ?? CourseDatasourceImpl();
 
   @override
   Future<List<Course>> getCourses() {
@@ -37,9 +38,11 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
-  Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId) {
+  Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(
+      int userId, int courseId) {
     return courseDatasource.getLessonsByUserIdAndCourseId(userId, courseId);
   }
+
   @override
   Future<void> deleteCourse(int courseId) {
     return courseDatasource.deleteCourse(courseId);

@@ -3,7 +3,7 @@ import 'package:oev_mobile_app/domain/datasources/enrollment_datasource.dart';
 import '../../config/constants/environment.dart';
 import '../../domain/errors/auth_errors.dart';
 
-class EnrollmentDatasourceImpl implements LessonDatasource {
+class EnrollmentDatasourceImpl implements EnrollmentDatasource {
   final dio = Dio(
     BaseOptions(
       baseUrl: Environment.apiUrl,
@@ -63,12 +63,9 @@ class EnrollmentDatasourceImpl implements LessonDatasource {
   }
 
   @override
-  Future<void> deleteEnrollment(int enrollmentId) async {
+  Future<void> deleteEnrollmentById(int enrollmentId) {
     try {
-      final response = await dio.delete('/enrollment/delete/$enrollmentId');
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Error al eliminar la inscripción');
-      }
+      return dio.delete('/enrollment/delete/$enrollmentId');
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
         throw WrongCredentials();
@@ -76,9 +73,9 @@ class EnrollmentDatasourceImpl implements LessonDatasource {
       if (e.type == DioExceptionType.connectionTimeout) {
         throw ConnectionTimeout();
       }
-      throw CustomError('Something wrong happened');
+      throw CustomError('Something went wrong');
     } catch (e) {
-      throw CustomError('Something wrong happened');
+      throw CustomError('Something went wrong');
     }
   }
 }
