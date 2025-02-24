@@ -302,14 +302,40 @@ class _CustomLessonCard extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.remove_circle, color: Colors.white),
               onPressed: () async {
-                await ref.read(lessonDeleteProvider(lesson.id).future);
-                ref.invalidate(lessonProvider(lesson.courseId));
-                ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
+                final result = await deleteLessonModal(context);
+                if (result ?? false) {
+                  await ref.read(lessonDeleteProvider(lesson.id).future);
+                  ref.invalidate(lessonProvider(lesson.courseId));
+                  ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
+                }
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<bool?> deleteLessonModal(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E2C),
+          title: const Text('Confirmar eliminación', style: TextStyle(color: Colors.white)),
+          content: const Text('¿Estás seguro de que deseas eliminar esta lección?', style: TextStyle(color: Colors.white70)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

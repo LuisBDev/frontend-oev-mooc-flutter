@@ -4,75 +4,166 @@ import 'package:oev_mobile_app/domain/entities/dto/request/course_dto.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 
-class AddCourseScreen extends ConsumerStatefulWidget {
-  const AddCourseScreen({super.key});
+final snackbarMessageProvider = StateProvider<String?>((ref) => null);
+
+class CreateCourseScreen extends ConsumerStatefulWidget {
+  const CreateCourseScreen({super.key});
 
   @override
-  _AddCourseScreenState createState() => _AddCourseScreenState();
+  _CreateCourseScreenState createState() => _CreateCourseScreenState();
 }
 
-class _AddCourseScreenState extends ConsumerState<AddCourseScreen> {
+class _CreateCourseScreenState extends ConsumerState<CreateCourseScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _benefitsController = TextEditingController();
+  final TextEditingController _targetAudienceController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  String? _selectedLevel;
+  String? _selectedCategory;
+
+  final List<String> levels = ['Básico', 'Intermedio', 'Avanzado'];
+
+  final List<String> categories = [
+    'Tecnología y Programación',
+    'Negocios y Emprendimiento',
+    'Diseño',
+    'Ciencias y Matemáticas',
+    'Idiomas',
+    'Desarrollo Personal',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final addCourseState = ref.watch(addCourseProvider);
+    ref.listen<String?>(snackbarMessageProvider, (previous, next) {
+      if (next != null && next.isNotEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+              SnackBar(
+                content: Text(next, style: const TextStyle(color: Colors.white)),
+                backgroundColor: Colors.blueAccent,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 1),
+              ),
+            )
+            .closed
+            .then((_) => Navigator.pop(context));
+        ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
+      }
+    });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar Curso')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nombre del curso'),
-                validator: (value) => value!.isEmpty ? 'El nombre es obligatorio' : null,
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Descripción'),
-                validator: (value) => value!.isEmpty ? 'La descripción es obligatoria' : null,
-              ),
-              const SizedBox(height: 20),
-              addCourseState.isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          final newCourse = CourseRequestDTO(
-                            name: _nameController.text,
-                            description: _descriptionController.text,
-                          );
-                          int id = ref.read(authProvider).token?.id ?? 0;
-                          await ref.read(addCourseProvider.notifier).addCourse(id, newCourse);
-
-                          ref.invalidate(coursesProvider);
-
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Curso agregado con éxito')),
-                          );
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text('Agregar Curso'),
-                    ),
-            ],
+      backgroundColor: const Color(0xFF1E1E2C),
+      appBar: AppBar(
+        title: const Text('Crear Curso', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF1E1E2C),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTextField(_nameController, 'Título del curso'),
+                _buildTextField(_descriptionController, 'Descripción'),
+                _buildTextField(_benefitsController, 'Beneficios', required: false),
+                _buildTextField(_targetAudienceController, 'Audiencia objetivo', required: false),
+                const SizedBox(height: 15),
+                _buildDropdownField('Categoría', categories, _selectedCategory, (value) => setState(() => _selectedCategory = value)),
+                const SizedBox(height: 30),
+                _buildDropdownField('Nivel', levels, _selectedLevel, (value) => setState(() => _selectedLevel = value)),
+                const SizedBox(height: 15),
+                _buildTextField(_priceController, 'Precio', isNumeric: true),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _createCourse,
+                  child: const Text('Crear Curso'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  Widget _buildDropdownField(String label, List<String> elements, String? selectedValue, void Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: selectedValue,
+      dropdownColor: Colors.black54,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        border: const OutlineInputBorder(),
+      ),
+      items: elements.map((element) {
+        return DropdownMenuItem(
+          value: element,
+          child: Text(element, style: const TextStyle(color: Colors.white)),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    bool required = true,
+    bool isNumeric = false,
+    int? maxLines, // Permite definir el número máximo de líneas
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+        style: const TextStyle(color: Colors.white),
+        onTapOutside: (event) => FocusScope.of(context).unfocus(),
+        minLines: maxLines == null ? 1 : null, // Si no hay `maxLines`, usa una sola línea
+        maxLines: maxLines, // Define el número máximo de líneas
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.white70),
+          border: const OutlineInputBorder(),
+        ),
+        validator: (value) {
+          if (required && (value == null || value.isEmpty)) {
+            return 'Este campo es obligatorio';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Future<void> _createCourse() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    int id = ref.read(authProvider).token?.id ?? 0;
+    final newCourse = CourseRequestDTO(
+      name: _nameController.text,
+      description: _descriptionController.text,
+      benefits: _benefitsController.text.isNotEmpty ? _benefitsController.text : null,
+      targetAudience: _targetAudienceController.text.isNotEmpty ? _targetAudienceController.text : null,
+      category: _selectedCategory,
+      level: _selectedLevel,
+      price: double.tryParse(_priceController.text) ?? 0.0,
+    );
+
+    try {
+      await ref.read(addCourseProvider.notifier).addCourse(id, newCourse);
+      ref.invalidate(coursesProvider);
+      ref.read(snackbarMessageProvider.notifier).state = "Curso creado correctamente";
+    } catch (e) {
+      ref.read(snackbarMessageProvider.notifier).state = "Error al crear el curso";
+    }
   }
 }

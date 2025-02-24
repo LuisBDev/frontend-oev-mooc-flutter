@@ -48,12 +48,12 @@ class CourseCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(course.instructorName, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   const SizedBox(height: 4),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Icon(Icons.people, size: 16, color: Colors.white70),
-                      SizedBox(width: 4),
-                      Text('24.5k', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      const Icon(Icons.people, size: 16, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Text(course.totalStudents.toString(), style: const TextStyle(color: Colors.white, fontSize: 12)),
                     ],
                   ),
                 ],

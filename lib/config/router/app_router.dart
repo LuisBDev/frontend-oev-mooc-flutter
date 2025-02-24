@@ -43,7 +43,7 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/course/create',
-        builder: (context, state) => const AddCourseScreen(),
+        builder: (context, state) => CreateCourseScreen(),
       ),
     ],
     redirect: (context, state) {

@@ -45,14 +45,16 @@ class CourseDatasourceImpl implements CourseDatasource {
   }
 
   @override
-  Future<void> addCourse(int userId, CourseRequestDTO courseRequestDTO) async {
+  Future<Course> addCourse(int userId, CourseRequestDTO courseRequestDTO) async {
     try {
       final response = await _dio.post(
         '/course/create/$userId',
         data: courseRequestDTO.toJson(),
       );
 
-      if (response.statusCode != 201 && response.statusCode != 200) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return CourseMapper.userJsonToEntity(response.data);
+      } else {
         throw Exception('Error al agregar el curso');
       }
     } catch (e) {
@@ -103,6 +105,7 @@ class CourseDatasourceImpl implements CourseDatasource {
       throw Exception('Error en la petición: $e');
     }
   }
+
   @override
   Future<void> deleteCourse(int courseId) async {
     try {
