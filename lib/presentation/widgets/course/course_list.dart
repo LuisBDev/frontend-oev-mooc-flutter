@@ -5,6 +5,7 @@ import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_
 import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_slider.dart';
 
 // Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
@@ -15,7 +16,6 @@ class CourseList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
-    final asyncCourses = ref.watch(coursesProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final loggedUser = ref.read(authProvider).token;
 
@@ -24,24 +24,15 @@ class CourseList extends ConsumerWidget {
         const SizedBox(height: 20),
         Text(
           'Bienvenido, ${loggedUser?.name ?? 'User'}',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           'Tenemos sugerencias para ti basadas en tus intereses',
           style: TextStyle(color: Colors.white70),
         ),
         const SizedBox(height: 20),
-        Container(
-          height: 180,
-          width: 410,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: const DecorationImage(
-              image: AssetImage('assets/images/image_carrusel.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
+        const RecommendedCoursesSlider(),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
@@ -78,7 +69,10 @@ class CourseList extends ConsumerWidget {
             children: [
               const Text(
                 'Cursos',
-                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
               IconButton(
                 onPressed: () => {
@@ -105,41 +99,42 @@ class CourseList extends ConsumerWidget {
         const SizedBox(height: 10),
         Expanded(
           child: ref.watch(recommendedCoursesProvider).when(
-            data: (courses) {
-              // Filtrar los cursos según el término de búsqueda
-              final filteredCourses = courses
-                  .where((course) =>
-                      course.name.toLowerCase().contains(searchQuery.toLowerCase()))
-                  .toList();
+                data: (courses) {
+                  // Filtrar los cursos según el término de búsqueda
+                  final filteredCourses = courses
+                      .where((course) => course.name
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
+                      .toList();
 
-              if (filteredCourses.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No hay cursos publicados',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                );
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 4 / 4.4,
-                  ),
-                  itemCount: filteredCourses.length,
-                  itemBuilder: (context, index) {
-                    return CourseCard(course: filteredCourses[index]);
-                  },
-                ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(child: Text('Error: $error')),
-          ),
+                  if (filteredCourses.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No hay cursos publicados',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 4 / 4.4,
+                      ),
+                      itemCount: filteredCourses.length,
+                      itemBuilder: (context, index) {
+                        return CourseCard(course: filteredCourses[index]);
+                      },
+                    ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text('Error: $error')),
+              ),
         ),
       ],
     );
