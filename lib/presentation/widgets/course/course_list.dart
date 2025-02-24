@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
-
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_slider.dart';
 
@@ -20,31 +19,30 @@ class CourseList extends ConsumerWidget {
     final searchQuery = ref.watch(searchQueryProvider);
     final loggedUser = ref.read(authProvider).token;
 
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        Text(
-          'Bienvenido, ${loggedUser?.name ?? 'User'}',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        const Text(
-          'Tenemos sugerencias para ti basadas en tus intereses',
-          style: TextStyle(color: Colors.white70),
-        ),
-        const SizedBox(height: 20),
-        const RecommendedCoursesSlider(),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-          child: SizedBox(
-            width: 420,
-            child: TextField(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Bienvenido, ${loggedUser?.name ?? 'User'}',
+              style: const TextStyle(
+                  fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const Text(
+              'Tenemos sugerencias para ti basadas en tus intereses',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 20),
+            const RecommendedCoursesSlider(),
+            const SizedBox(height: 10),
+            TextField(
               cursorColor: colors.primary,
               onChanged: (value) {
                 ref.read(searchQueryProvider.notifier).update((state) => value);
               },
               style: const TextStyle(color: Colors.white),
-              onTapOutside: (event) => FocusScope.of(context).unfocus(),
               decoration: const InputDecoration(
                 hintText: 'Buscar por curso',
                 hintStyle: TextStyle(color: Colors.grey),
@@ -60,57 +58,54 @@ class CourseList extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text(
-                'Cursos',
-                style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                onPressed: () => {
-                  ref.refresh(coursesProvider),
-                },
-                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-        Visibility(
-            visible: loggedUser!.role == 'INSTRUCTOR',
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push('/course/create');
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [Text('Crear Curso'), Icon(Icons.add)],
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Text(
+                  'Cursos',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  onPressed: () => ref.refresh(coursesProvider),
+                  icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                ),
+              ],
+            ),
+            if (loggedUser!.role == 'INSTRUCTOR')
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.push('/course/create');
+                  },
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Text('Crear Curso'), Icon(Icons.add)],
+                  ),
                 ),
               ),
-            )),
-        const SizedBox(height: 10),
-        Expanded(
-          child: asyncCourses.when(
-            data: (courses) {
-              // Filtrar los cursos según el término de búsqueda
-              final filteredCourses = courses.where((course) => course.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
-              if (filteredCourses.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No hay cursos publicados',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                );
-              }
+            const SizedBox(height: 10),
+            asyncCourses.when(
+              data: (courses) {
+                // Filtrar los cursos según el término de búsqueda
+                final filteredCourses = courses
+                    .where((course) =>
+                        course.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                    .toList();
+                if (filteredCourses.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No hay cursos publicados',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  );
+                }
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView.builder(
+                return GridView.builder(
+                  shrinkWrap: true, // Ajustar el tamaño al contenido
+                  physics: const NeverScrollableScrollPhysics(), // Evita el scroll independiente
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 10,
@@ -121,14 +116,14 @@ class CourseList extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     return CourseCard(course: filteredCourses[index]);
                   },
-                ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(child: Text('Error: $error')),
-          ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
