@@ -11,16 +11,15 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Eliminamos el backgroundColor y lo movemos al body
       resizeToAvoidBottomInset: false,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/fondosm.png'), // Ruta de la imagen
-            fit: BoxFit.cover, // Ajusta la imagen para cubrir todo el fondo
+            image: AssetImage('assets/images/fondosm.png'), 
+            fit: BoxFit.cover, 
           ),
         ),
-        child: const _LoginForm(), // Tu formulario de login
+        child: const _LoginForm(), 
       ),
     );
   }
