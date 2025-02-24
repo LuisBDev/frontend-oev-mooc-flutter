@@ -33,14 +33,16 @@ class CourseEditableContent extends ConsumerWidget {
             duration: const Duration(seconds: 2),
           ),
         );
-        ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
+        ref.read(snackbarMessageProvider.notifier).state =
+            null; // Limpiar mensaje
       }
     });
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
       appBar: AppBar(
-        title: Text('Editar: ${course.name}', style: const TextStyle(color: Colors.white)),
+        title: Text('Editar: ${course.name}',
+            style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromRGBO(30, 30, 44, 0.996),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -68,12 +70,18 @@ class CourseEditableContent extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(
               course.category!,
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.blueAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               course.name,
-              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -85,7 +93,10 @@ class CourseEditableContent extends ConsumerWidget {
               children: [
                 const Text(
                   "Contenido",
-                  style: TextStyle(color: Colors.blueAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   onPressed: () => ref.refresh(lessonProvider(course.id)),
@@ -125,7 +136,8 @@ class CourseEditableContent extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ),
@@ -177,7 +189,8 @@ void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
                     ElevatedButton(
                       onPressed: () async {
                         final picker = ImagePicker();
-                        final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+                        final pickedFile =
+                            await picker.pickVideo(source: ImageSource.gallery);
 
                         if (pickedFile != null) {
                           setState(() {
@@ -187,10 +200,13 @@ void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedVideo != null ? Colors.blue : Colors.grey,
+                        backgroundColor:
+                            selectedVideo != null ? Colors.blue : Colors.grey,
                       ),
                       child: Text(
-                        selectedVideo != null ? 'Video Seleccionado' : 'Seleccionar Video', // Conditional text
+                        selectedVideo != null
+                            ? 'Video Seleccionado'
+                            : 'Seleccionar Video', // Conditional text
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -214,9 +230,11 @@ void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
               ),
               FilledButton(
                 onPressed: () async {
-                  if (titleController.text.isNotEmpty && selectedVideo != null) {
+                  if (titleController.text.isNotEmpty &&
+                      selectedVideo != null) {
                     final VideoUploader uploader = VideoUploader();
-                    await uploader.uploadLessonVideo(courseId, titleController.text, selectedVideo);
+                    await uploader.uploadLessonVideo(
+                        courseId, titleController.text, selectedVideo);
                     ref.invalidate(lessonProvider(courseId));
                     Navigator.of(context).pop();
                   }
@@ -235,18 +253,23 @@ void _showAddResourceModal(BuildContext context, WidgetRef ref, int courseId) {
   );
 }
 
-Future<void> _showDeleteConfirmation(BuildContext context, WidgetRef ref, int courseId) async {
+Future<void> _showDeleteConfirmation(
+    BuildContext context, WidgetRef ref, int courseId) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text('Confirmar eliminación', style: TextStyle(color: Colors.white)),
-        content: const Text('Esta acción eliminará el curso, todas sus lecciones y las inscripciones de los estudiantes. ¿Estás seguro de continuar?', style: TextStyle(color: Colors.white70)),
+        title: const Text('Confirmar eliminación',
+            style: TextStyle(color: Colors.white)),
+        content: const Text(
+            'Esta acción eliminará el curso, todas sus lecciones y las inscripciones de los estudiantes. ¿Estás seguro de continuar?',
+            style: TextStyle(color: Colors.white70)),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
+            child:
+                const Text('Cancelar', style: TextStyle(color: Colors.white70)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -297,14 +320,16 @@ class _CustomLessonCard extends ConsumerWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(lesson.duration?.toString() ?? '', style: const TextStyle(color: Colors.white70)),
+            Text(lesson.duration?.toString() ?? '',
+                style: const TextStyle(color: Colors.white70)),
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.remove_circle, color: Colors.white),
               onPressed: () async {
                 await ref.read(lessonDeleteProvider(lesson.id).future);
                 ref.invalidate(lessonProvider(lesson.courseId));
-                ref.read(snackbarMessageProvider.notifier).state = "Lección eliminada correctamente";
+                ref.read(snackbarMessageProvider.notifier).state =
+                    "Lección eliminada correctamente";
               },
             ),
           ],
