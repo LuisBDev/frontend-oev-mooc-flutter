@@ -60,46 +60,42 @@ class ConferenceeDetailPage extends ConsumerWidget {
           const SizedBox(height: 8),
 
           // Fila con cantidad de alumnos, costo y favoritos
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    const Icon(Icons.category, color: Colors.white70),
-                    const SizedBox(height: 5),
-                    Text("${conference.category}",
-                        style: const TextStyle(color: Colors.white70)),
-                  ],
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.category, color: Colors.white70),
+                      const SizedBox(height: 5),
+                      Text("${conference.category}", style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    const Icon(Icons.people, color: Colors.white70),
-                    const SizedBox(height: 5),
-                    Text("${conference.totalStudents}",
-                        style: const TextStyle(color: Colors.white70)),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.people, color: Colors.white70),
+                      const SizedBox(height: 5),
+                      Text("${conference.totalStudents}", style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    const Icon(Icons.update, color: Colors.white70),
-                    const SizedBox(height: 5),
-                    Text(
-                      conference.lastUpdate != null
-                          ? conference.lastUpdate!
-                              .toLocal()
-                              .toString()
-                              .split(' ')[0]
-                          : '',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.update, color: Colors.white70),
+                      const SizedBox(height: 5),
+                      Text(
+                        conference.lastUpdate != null ? conference.lastUpdate!.toLocal().toString().split(' ')[0] : '',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           const SizedBox(height: 8),
@@ -113,8 +109,8 @@ class ConferenceeDetailPage extends ConsumerWidget {
 
           // Última actualización
           Text(
-            //"Fecha de la conferencia: ${conference.date}",
-            "Fecha de la conferencia: 22 de octubre de 2021",
+            "Fecha de la conferencia: ${conference.date.toLocal().toString().split(' ')[0]}",
+            // "Fecha de la conferencia: 22 de octubre de 2021",
             style: const TextStyle(fontSize: 16, color: Colors.white70),
           ),
 
@@ -128,8 +124,7 @@ class ConferenceeDetailPage extends ConsumerWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

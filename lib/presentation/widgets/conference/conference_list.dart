@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/conferences_providers/conferences_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/conference/conference_card.dart';
+import 'package:go_router/go_router.dart';
 
 // Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
@@ -15,14 +16,15 @@ class ConferenceList extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final asyncConferences = ref.watch(conferenceProvider);
     final searchQuery = ref.watch(searchQueryProvider);
+    final loggedUser = ref.read(authProvider).token;
+    final isAdmin = loggedUser!.role == 'ADMIN';
 
     return Column(
       children: [
         const SizedBox(height: 20),
         Text(
           'Conferencias',
-          style: const TextStyle(
-              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           'Conoce las conferencias disponibles',
@@ -59,20 +61,35 @@ class ConferenceList extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Conferencias',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  const Text(
+                    'Conferencias',
+                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: () => {
+                      ref.refresh(conferenceProvider),
+                    },
+                    icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: () => {
-                  ref.refresh(conferenceProvider),
-                },
-                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, right: 20),
+                child: Visibility(
+                  visible: isAdmin,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/conference/create');
+                    },
+                    child: const Row(
+                      children: [Text('Crear Conferencia'), Icon(Icons.add)],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -82,15 +99,11 @@ class ConferenceList extends ConsumerWidget {
           child: asyncConferences.when(
             data: (conferences) {
               // Filtrar los cursos según el término de búsqueda
-              final filteredConferences = conferences
-                  .where((conference) => conference.name
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()))
-                  .toList();
+              final filteredConferences = conferences.where((conference) => conference.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
               if (filteredConferences.isEmpty) {
                 return const Center(
                   child: Text(
-                    'No hay cursos publicados',
+                    'No hay conferencias publicadas',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 );
@@ -107,8 +120,7 @@ class ConferenceList extends ConsumerWidget {
                   ),
                   itemCount: filteredConferences.length,
                   itemBuilder: (context, index) {
-                    return ConferenceCard(
-                        conference: filteredConferences[index]);
+                    return ConferenceCard(conference: filteredConferences[index]);
                   },
                 ),
               );

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:oev_mobile_app/config/constants/environment.dart';
 import 'package:oev_mobile_app/domain/datasources/conference_datasource.dart';
 import 'package:oev_mobile_app/domain/entities/conference/conference_model.dart';
+import 'package:oev_mobile_app/domain/entities/dto/request/conference_dto.dart';
 import 'package:oev_mobile_app/infrastructure/mappers/conference_mapper.dart';
 
 class ConferenceDatasourceImpl implements ConferenceDatasource {
@@ -17,9 +18,7 @@ class ConferenceDatasourceImpl implements ConferenceDatasource {
       final response = await _dio.get('/conference/findAll');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        return data
-            .map((json) => ConferenceMapper.userJsonToEntity(json))
-            .toList();
+        return data.map((json) => ConferenceMapper.userJsonToEntity(json)).toList();
       } else {
         throw Exception('Error al cargar los cursos');
       }
@@ -31,12 +30,29 @@ class ConferenceDatasourceImpl implements ConferenceDatasource {
   @override
   Future<Conference> getConferenceById(int conferenceId) async {
     try {
-      final response =
-          await _dio.get('/conference/findConference/$conferenceId');
+      final response = await _dio.get('/conference/findConference/$conferenceId');
       if (response.statusCode == 200) {
         return ConferenceMapper.userJsonToEntity(response.data);
       } else {
         throw Exception('Error al obtener el curso con ID $conferenceId');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
+
+  @override
+  Future<Conference> addConference(int userId, ConferenceRequestDTO conferenceRequestDTO) async {
+    try {
+      final response = await _dio.post(
+        '/conference/create/$userId',
+        data: conferenceRequestDTO.toJson(),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return ConferenceMapper.userJsonToEntity(response.data);
+      } else {
+        throw Exception('Error al agregar el curso');
       }
     } catch (e) {
       throw Exception('Error en la petición: $e');
