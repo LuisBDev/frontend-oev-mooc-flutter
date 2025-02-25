@@ -16,12 +16,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
-  bool _showFilterChip = false; // Controla la visibilidad del Chip
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final List<String> _titles = ["Inicio", "Mis cursos", "Conferencias"];
+  final Color selectedColor = Color(0xFF12CDD9);
+  final Color unselectedColor = Colors.white;
+  final Color backgroundColor = Color(0xFF252836);
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +35,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             child: Image.asset('assets/images/logo_unmsm.png'),
           ),
           actions: [
-            IconButton(
-              onPressed: () {
-                // Acción para el ícono de filtrado
-                setState(() {
-                  _showFilterChip =
-                      true; // Mostrar el Chip al presionar el filtro
-                });
-              },
-              icon: const Icon(Icons.filter_list, color: Colors.white),
-            ),
             IconButton(
               onPressed: () {
                 context.push('/profile');
@@ -91,18 +79,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             Expanded(
               child: _buildBody(),
             ),
-            if (_showFilterChip)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Chip(
-                  label: const Text('Talleres'),
-                  onDeleted: () {
-                    setState(() {
-                      _showFilterChip = false; // Ocultar el Chip al eliminarlo
-                    });
-                  },
-                ),
-              ),
           ],
         ),
         bottomNavigationBar: Theme(
@@ -110,20 +86,45 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             canvasColor: const Color(0xff2a2c3e),
           ),
           child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home, color: Colors.lightBlue),
+            items: List.generate(3, (index) {
+              bool isSelected = _selectedIndex == index;
+              return BottomNavigationBarItem(
+                icon: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: isSelected
+                      ? BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(20),
+                        )
+                      : null,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        index == 0
+                            ? Icons.home
+                            : index == 1
+                                ? Icons.menu_book
+                                : Icons.video_call,
+                        color: isSelected ? selectedColor : unselectedColor,
+                      ),
+                      if (isSelected)
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(
+                            _titles[index],
+                            style: TextStyle(
+                              color: selectedColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book, color: Colors.white),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.video_call, color: Colors.white),
-                label: '',
-              ),
-            ],
+              );
+            }),
             currentIndex: _selectedIndex,
             onTap: (index) {
               setState(() {
