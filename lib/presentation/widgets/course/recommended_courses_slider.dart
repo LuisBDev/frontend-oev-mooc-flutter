@@ -1,7 +1,7 @@
 // lib/presentation/widgets/course/recommended_courses_slider.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:card_swiper/card_swiper.dart'; 
+import 'package:card_swiper/card_swiper.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_detail.dart';
 
@@ -18,11 +18,13 @@ class RecommendedCoursesSlider extends ConsumerWidget {
           return const SizedBox.shrink();
         }
 
+        final limitedCourses = courses.length >= 3 ? courses.take(3).toList() : courses;
+
         return SizedBox(
           height: 180,
           child: Swiper(
             itemBuilder: (BuildContext context, int index) {
-              final course = courses[index];
+              final course = limitedCourses[index];
               return InkWell(
                 onTap: () {
                   Navigator.push(
@@ -36,8 +38,7 @@ class RecommendedCoursesSlider extends ConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
-                      image: NetworkImage(course.imageUrl ?? 
-                        'https://via.placeholder.com/400x320'),
+                      image: NetworkImage(course.imageUrl ?? 'https://via.placeholder.com/400x320'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -100,7 +101,7 @@ class RecommendedCoursesSlider extends ConsumerWidget {
                 ),
               );
             },
-            itemCount: courses.length,
+            itemCount: limitedCourses.length,
             pagination: const SwiperPagination(
               builder: DotSwiperPaginationBuilder(
                 activeColor: Colors.white,

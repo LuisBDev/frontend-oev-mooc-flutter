@@ -72,8 +72,9 @@ class CourseList extends ConsumerWidget {
                 style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
               ),
               IconButton(
-                onPressed: () => {
-                  ref.refresh(coursesProvider),
+                onPressed: () {
+                  ref.invalidate(coursesProvider);
+                  ref.invalidate(recommendedCoursesProvider);
                 },
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white),
               ),

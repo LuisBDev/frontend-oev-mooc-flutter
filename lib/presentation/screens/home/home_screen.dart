@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/screens/chatbot/chatbot_screen.dart';
 import 'package:oev_mobile_app/presentation/widgets/conference/conference_list.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_list.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/my_courses.dart';
@@ -41,8 +42,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
               onPressed: () {
                 // Acción para el ícono de filtrado
                 setState(() {
-                  _showFilterChip =
-                      true; // Mostrar el Chip al presionar el filtro
+                  _showFilterChip = true; // Mostrar el Chip al presionar el filtro
                 });
               },
               icon: const Icon(Icons.filter_list, color: Colors.white),
@@ -123,6 +123,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: Icon(Icons.video_call, color: Colors.white),
                 label: '',
               ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.smart_toy, color: Colors.white),
+                label: '',
+              ),
             ],
             currentIndex: _selectedIndex,
             onTap: (index) {
@@ -153,6 +157,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         return const Center(
           child: ConferenceList(),
         );
+      case 3:
+        return Center(child: ChatScreen());
       default:
         return const Center(
           child: Text('VistaDefecto', style: TextStyle(color: Colors.white)),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/config/router/app_router_notifier.dart';
+import 'package:oev_mobile_app/presentation/screens/chatbot/chatbot_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/home/home_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/check_auth_status_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/login/login_screen.dart';
@@ -44,6 +45,10 @@ final goRouterProvider = Provider((ref) {
         path: '/course/create',
         builder: (context, state) => CreateCourseScreen(),
       ),
+      GoRoute(
+        path: '/chatbot',
+        builder: (context, state) => ChatScreen(),
+      ),
     ],
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
@@ -62,9 +67,7 @@ final goRouterProvider = Provider((ref) {
       }
 
       if (authStatus == AuthStatus.authenticated) {
-        if (isGoingTo == '/login' ||
-            isGoingTo == '/register' ||
-            isGoingTo == '/splash') {
+        if (isGoingTo == '/login' || isGoingTo == '/register' || isGoingTo == '/splash') {
           return '/home';
         }
       }
