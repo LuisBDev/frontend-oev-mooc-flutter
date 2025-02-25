@@ -17,7 +17,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
-  final List<String> _titles = ["Inicio", "Courses", "Confer.", "Bot"];
   final Color selectedColor = Color(0xFF12CDD9);
   final Color unselectedColor = Colors.white;
   final Color backgroundColor = Color(0xFF252836);
@@ -48,22 +47,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    ref.read(authProvider).token?.name ?? 'Usuario',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    ref.read(authProvider).token?.role ?? 'Role',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 20),
             IconButton(
               onPressed: () {
                 ref.read(authProvider.notifier).logout();
@@ -87,53 +70,24 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
             canvasColor: const Color(0xff2a2c3e),
           ),
           child: BottomNavigationBar(
-            items: List.generate(4, (index) {
-              bool isSelected = _selectedIndex == index;
-              return BottomNavigationBarItem(
-                icon: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: isSelected
-                      ? BoxDecoration(
-                          color: backgroundColor,
-                          borderRadius: BorderRadius.circular(20),
-                        )
-                      : null,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        index == 0
-                            ? Icons.home
-                            : index == 1
-                                ? Icons.menu_book
-                                : index == 2
-                                    ? Icons.video_call
-                                    : Icons.smart_toy_rounded,
-                        color: isSelected ? selectedColor : unselectedColor,
-                      ),
-                      if (isSelected)
-                        Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Text(
-                            index == 0
-                                ? _titles[0]
-                                : index == 1
-                                    ? _titles[1]
-                                    : index == 2
-                                        ? _titles[2]
-                                        : _titles[3],
-                            style: TextStyle(
-                              color: selectedColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home, color: _selectedIndex == 0 ? selectedColor : unselectedColor),
                 label: '',
-              );
-            }),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.menu_book, color: _selectedIndex == 1 ? selectedColor : unselectedColor),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.video_call, color: _selectedIndex == 2 ? selectedColor : unselectedColor),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.smart_toy_rounded, color: _selectedIndex == 3 ? selectedColor : unselectedColor),
+                label: '',
+              ),
+            ],
             currentIndex: _selectedIndex,
             onTap: (index) {
               setState(() {
