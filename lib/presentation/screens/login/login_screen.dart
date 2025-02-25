@@ -118,7 +118,7 @@ class _LoginForm extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Color.fromARGB(106, 255, 255, 255)),
                   validator: null,
                 ),
               ],
@@ -133,7 +133,7 @@ class _LoginForm extends ConsumerWidget {
                       const Text(
                         'Contraseña',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           fontSize: 14.0,
                           fontFamily: 'PT Sans',
                         ),
@@ -154,7 +154,7 @@ class _LoginForm extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.white),
                         validator: null,
                       )
                     ],
