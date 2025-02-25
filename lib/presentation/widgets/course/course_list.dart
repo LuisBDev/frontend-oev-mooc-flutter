@@ -8,6 +8,7 @@ import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_s
 
 // Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
+final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
 class CourseList extends ConsumerWidget {
   const CourseList({super.key});
@@ -17,7 +18,13 @@ class CourseList extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final asyncCourses = ref.watch(coursesProvider);
     final searchQuery = ref.watch(searchQueryProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
     final loggedUser = ref.read(authProvider).token;
+
+    // Reiniciar filtros cuando el usuario inicia sesión
+    ref.listen(authProvider, (previous, next) {
+      ref.read(selectedCategoryProvider.notifier).state = null;
+    });
 
     return SingleChildScrollView(
       child: Padding(
@@ -37,28 +44,78 @@ class CourseList extends ConsumerWidget {
             const SizedBox(height: 20),
             const RecommendedCoursesSlider(),
             const SizedBox(height: 10),
-            TextField(
-              cursorColor: colors.primary,
-              onChanged: (value) {
-                ref.read(searchQueryProvider.notifier).update((state) => value);
-              },
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Buscar por curso',
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(Icons.search),
-                filled: true,
-                fillColor: Color(0xff343646),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    cursorColor: colors.primary,
+                    onChanged: (value) {
+                      ref.read(searchQueryProvider.notifier).update((state) => value);
+                    },
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      hintText: 'Buscar por curso',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor: Color(0xff343646),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                      ),
+                    ),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
+                  onSelected: (value) {
+                    ref.read(selectedCategoryProvider.notifier).state = value;
+                  },
+                  itemBuilder: (context) => [
+                    'Tecnología y Programación',
+                    'Negocios y Emprendimiento',
+                    'Diseño',
+                    'Ciencias y Matemáticas',
+                    'Idiomas',
+                    'Desarrollo Personal'
+                  ].map((category) {
+                    return PopupMenuItem(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            if (selectedCategory != null)
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF207090),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      selectedCategory,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        ref.read(selectedCategoryProvider.notifier).state = null;
+                      },
+                      child: const Icon(Icons.close, color: Colors.white, size: 16),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             Row(
               children: [
                 const Text(
@@ -89,11 +146,12 @@ class CourseList extends ConsumerWidget {
             const SizedBox(height: 10),
             asyncCourses.when(
               data: (courses) {
-                // Filtrar los cursos según el término de búsqueda
-                final filteredCourses = courses
-                    .where((course) =>
-                        course.name.toLowerCase().contains(searchQuery.toLowerCase()))
-                    .toList();
+                final filteredCourses = courses.where((course) {
+                  final matchesSearch = course.name.toLowerCase().contains(searchQuery.toLowerCase());
+                  final matchesCategory = selectedCategory == null || course.category == selectedCategory;
+                  return matchesSearch && matchesCategory;
+                }).toList();
+
                 if (filteredCourses.isEmpty) {
                   return const Center(
                     child: Text(
@@ -104,8 +162,8 @@ class CourseList extends ConsumerWidget {
                 }
 
                 return GridView.builder(
-                  shrinkWrap: true, // Ajustar el tamaño al contenido
-                  physics: const NeverScrollableScrollPhysics(), // Evita el scroll independiente
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(), 
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 10,
