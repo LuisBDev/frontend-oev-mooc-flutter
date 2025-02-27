@@ -9,9 +9,10 @@ import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_s
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
+// coment
+
 class CourseList extends ConsumerWidget {
   const CourseList({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
