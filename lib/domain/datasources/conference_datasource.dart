@@ -5,4 +5,5 @@ abstract class ConferenceDatasource {
   Future<List<Conference>> getConference();
   Future<Conference> getConferenceById(int conferenceId);
   Future<Conference> addConference(int userId, ConferenceRequestDTO conferenceRequestDTO);
+  Future<void> deleteConferenceById(int conferenceId);
 }

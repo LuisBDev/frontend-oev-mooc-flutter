@@ -4,14 +4,21 @@ import 'package:oev_mobile_app/domain/entities/dto/request/conference_dto.dart';
 import 'package:oev_mobile_app/domain/repositories/conference_repository.dart';
 import 'package:oev_mobile_app/presentation/providers/conferences_providers/conference_repository_provider.dart';
 
-final conferenceProvider = FutureProvider.autoDispose<List<Conference>>((ref) async {
+final conferenceProvider =
+    FutureProvider.autoDispose<List<Conference>>((ref) async {
   final repository = ref.watch(conferenceRepositoryProvider);
   return repository.getConference();
 });
 
-final conferenceByIdProvider = FutureProvider.family.autoDispose<Conference, int>((ref, conferenceId) async {
+final conferenceByIdProvider = FutureProvider.family
+    .autoDispose<Conference, int>((ref, conferenceId) async {
   final repository = ref.watch(conferenceRepositoryProvider);
   return repository.getConferenceById(conferenceId);
+});
+
+final deleteConferenceProvider = FutureProvider.family.autoDispose<void, int>((ref, conferenceId) async {
+  final repository = ref.watch(conferenceRepositoryProvider);
+  return repository.deleteConferenceById(conferenceId);
 });
 
 final addConferenceProvider = StateNotifierProvider<AddConferenceNotifier, AsyncValue<Conference>>((ref) {

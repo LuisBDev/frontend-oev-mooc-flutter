@@ -20,6 +20,11 @@ class ConferenceRepositoryImpl implements ConferenceRepository {
   }
 
   @override
+  Future<void> deleteConferenceById(int conferenceId) {
+    return conferenceDatasource.deleteConferenceById(conferenceId);
+  }
+
+  @override
   Future<Conference> addConference(int userId, ConferenceRequestDTO conferenceRequestDTO) {
     return conferenceDatasource.addConference(userId, conferenceRequestDTO);
   }
