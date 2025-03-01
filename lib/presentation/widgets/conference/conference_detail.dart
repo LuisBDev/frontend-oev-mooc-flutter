@@ -6,6 +6,11 @@ import '../../providers/auth_provider.dart';
 import '../../providers/registration_providers/registration_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/conference/conference_list_participants.dart';
 
+import '../../screens/course/course_editable_content.dart';
+
+final snackbarMessageProvider = StateProvider<String?>((ref) => null);
+
+
 class ConferenceDetailPage extends ConsumerWidget {
   final int conferenceId;
 
@@ -13,8 +18,24 @@ class ConferenceDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final conferenceAsync = ref.watch(conferenceByIdProvider(conferenceId));
+    ref.listen<String?>(snackbarMessageProvider, (previous, next) {
+      if (next != null && next.isNotEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          SnackBar(
+            content: Text(next, style: const TextStyle(color: Colors.white)),
+            backgroundColor: Colors.blueAccent,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 1),
+          ),
+        )
+            .closed
+            .then((_) => Navigator.pop(context));
+        ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
+      }
+    });
 
+    final conferenceAsync = ref.watch(conferenceByIdProvider(conferenceId));
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C),
       appBar: AppBar(
@@ -40,6 +61,7 @@ class ConferenceDetailPage extends ConsumerWidget {
     final isVisible = loggedUser?.role == 'STUDENT' ||
         loggedUser?.role == 'ADMINISTRATIVE' ||
         loggedUser?.role == 'INSTRUCTOR';
+    final isAdmin = loggedUser?.role == 'ADMIN';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -154,33 +176,45 @@ class ConferenceDetailPage extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // Botón de Ver Registrados
-          Visibility(
-            visible: !isVisible,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ConferenceListParticipantsPage(
-                          conferenceId: conference.id),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (!isVisible)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ConferenceListParticipantsPage(conferenceId: conference.id),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.people),
+                  label: const Text("Ver inscritos"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Ver registrados',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+              const SizedBox(width: 16),
+              if (isAdmin)
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      _showDeleteConfirmation(context, ref, conference.id),
+                  icon: const Icon(Icons.delete),
+                  label: const Text("Eliminar"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
           const SizedBox(height: 20),
 
@@ -191,6 +225,36 @@ class ConferenceDetailPage extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _buildSection(String title, String? content) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF242636),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content ?? "No disponible.",
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   void _showRegistrationConfirmation(
       BuildContext context, WidgetRef ref, int conferenceId) {
@@ -268,32 +332,37 @@ class ConferenceDetailPage extends ConsumerWidget {
     });
   }
 
-  Widget _buildSection(String title, String? content) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF242636),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+  void _showDeleteConfirmation(
+    BuildContext context, WidgetRef ref, int conferenceId) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirmación'),
+        content: const Text('¿Seguro que quieres eliminar esta conferencia?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
           ),
-          const SizedBox(height: 8),
-          Text(
-            content ?? "No disponible.",
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _deleteConference(ref, context, conferenceId);
+            },
+            child: const Text('Eliminar'),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
+void _deleteConference(WidgetRef ref, BuildContext context, int conferenceId) {
+  ref.read(deleteConferenceProvider(conferenceId).future).then((_) {
+    ref.invalidate(conferenceProvider);
+    ref.read(snackbarMessageProvider.notifier).state = "Conferencia eliminada correctamente";
+  }).catchError((error) {
+    ref.read(snackbarMessageProvider.notifier).state = "Error al eliminar la conferencia";
+  });
 }
