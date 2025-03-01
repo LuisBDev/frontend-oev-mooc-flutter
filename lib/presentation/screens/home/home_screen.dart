@@ -91,38 +91,23 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
               bool isSelected = _selectedIndex == index;
               return BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: isSelected
-                      ? BoxDecoration(
-                          color: backgroundColor,
-                          borderRadius: BorderRadius.circular(20),
-                        )
-                      : null,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        index == 0
-                            ? Icons.home
-                            : index == 1
-                                ? Icons.menu_book
-                                : index == 2
-                                    ? Icons.video_call
-                                    : Icons.smart_toy_rounded,
-                        color: isSelected ? selectedColor : unselectedColor,
-                      ),
-                      if (isSelected)
-                        Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Text(
-                            "",
-                            style: TextStyle(
-                              color: selectedColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                    ],
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? backgroundColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: Icon(
+                      index == 0
+                          ? Icons.home
+                          : index == 1
+                              ? Icons.menu_book
+                              : index == 2
+                                  ? Icons.video_call
+                                  : Icons.smart_toy_rounded,
+                      color: isSelected ? selectedColor : unselectedColor,
+                    ),
                   ),
                 ),
                 label: '',

@@ -14,7 +14,7 @@ class ConferenceCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ConferenceeDetailPage(conferenceId: conference.id),
+                ConferenceDetailPage(conferenceId: conference.id),
           ),
         );
       },

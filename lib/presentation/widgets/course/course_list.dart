@@ -43,7 +43,10 @@ class CourseList extends ConsumerWidget {
               style: TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 20),
-            const RecommendedCoursesSlider(),
+            const SizedBox(
+              height: 180,
+              child: RecommendedCoursesSlider(),
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -72,6 +75,7 @@ class CourseList extends ConsumerWidget {
                     ),
                   ),
                 ),
+<<<<<<< HEAD
                 IconButton(
                   icon: const Icon(Icons.filter_list, color: Colors.white),
                   onPressed: () {
@@ -119,6 +123,29 @@ class CourseList extends ConsumerWidget {
                       },
                     );
                   },
+=======
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.filter_list, color: Colors.white),
+                  onSelected: (value) {
+                    ref.read(selectedCategoryProvider.notifier).state = value;
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem<String>(
+                      enabled: false,
+                      child: Text(
+                        'Seleccionar categoría',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ),
+                    ...['Tecnología y Programación', 'Negocios y Emprendimiento', 'Diseño', 'Ciencias y Matemáticas', 'Idiomas', 'Desarrollo Personal'].map((category) {
+                      return PopupMenuItem(
+                        value: category,
+                        child: Text(category, style: const TextStyle(color: Colors.white)),
+                      );
+                    }).toList(),
+                  ],
+                  color: Colors.black, // Fondo negro para el menú desplegable
+>>>>>>> origin/Development
                 ),
               ],
             ),

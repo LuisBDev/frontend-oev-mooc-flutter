@@ -8,6 +8,7 @@ import 'package:oev_mobile_app/presentation/screens/login/login_screen.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/profile/profile_screen.dart';
 import 'package:oev_mobile_app/presentation/screens/register/register_screen.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/conference_creation.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/course_creation.dart';
 
 final goRouterProvider = Provider((ref) {
@@ -44,6 +45,10 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/course/create',
         builder: (context, state) => CreateCourseScreen(),
+      ),
+      GoRoute(
+        path: '/conference/create',
+        builder: (context, state) => CreateConferenceScreen(),
       ),
       GoRoute(
         path: '/chatbot',

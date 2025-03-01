@@ -12,6 +12,7 @@ class ConferenceMapper {
       status: json['status'] ?? '',
       creationDate: json['creationDate'] != null ? DateTime.parse(json['creationDate']) : DateTime.now(),
       lastUpdate: json['lastUpdate'] != null ? DateTime.parse(json['lastUpdate']) : DateTime.now(),
+      date: DateTime.parse(json['date']),
       userId: json['userId'],
       creatorName: json['creatorName'] ?? 'Creator Name',
     );

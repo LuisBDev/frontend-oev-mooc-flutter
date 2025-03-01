@@ -24,6 +24,8 @@ final enrollmentProvider =
   final courseId = data['courseId']!;
   return await repository.enrollUserInCourse(userId, courseId);
 });
+
+// Provider de lista de participantes inscritos en un curso
 final enrolledUsersProvider =
     FutureProvider.family<List<Map<String, dynamic>>, int>(
         (ref, courseId) async {

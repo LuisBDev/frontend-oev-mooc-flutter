@@ -8,6 +8,7 @@ class Conference {
   final String? status;
   final DateTime? creationDate;
   final DateTime? lastUpdate;
+  final DateTime date;
   final int userId;
   final String creatorName;
 
@@ -21,6 +22,7 @@ class Conference {
     this.status,
     this.creationDate,
     this.lastUpdate,
+    required this.date,
     required this.userId,
     required this.creatorName,
   });
