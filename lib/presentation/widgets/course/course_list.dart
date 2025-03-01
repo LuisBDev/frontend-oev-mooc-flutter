@@ -6,13 +6,13 @@ import 'package:oev_mobile_app/presentation/widgets/course/course_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oev_mobile_app/presentation/widgets/course/recommended_courses_slider.dart';
 
-// Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
+// coment
+
 class CourseList extends ConsumerWidget {
   const CourseList({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
@@ -21,7 +21,6 @@ class CourseList extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final loggedUser = ref.read(authProvider).token;
 
-    // Reiniciar filtros cuando el usuario inicia sesión
     ref.listen(authProvider, (previous, next) {
       ref.read(selectedCategoryProvider.notifier).state = null;
     });
@@ -58,9 +57,9 @@ class CourseList extends ConsumerWidget {
                     decoration: const InputDecoration(
                       hintText: 'Buscar por curso',
                       hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
                       filled: true,
-                      fillColor: Color(0xff343646),
+                      fillColor: Color(0xff2A2D3E),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                       ),
@@ -71,36 +70,50 @@ class CourseList extends ConsumerWidget {
                     ),
                   ),
                 ),
-                PopupMenuButton<String>(
+                IconButton(
                   icon: const Icon(Icons.filter_list, color: Colors.white),
-                  onSelected: (value) {
-                    ref.read(selectedCategoryProvider.notifier).state = value;
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          backgroundColor: const Color(0xff1E1F29),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          title: const Text(
+                            'Seleccionar categoría',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ...['Tecnología y Programación', 'Negocios y Emprendimiento', 'Diseño', 'Ciencias y Matemáticas', 'Idiomas', 'Desarrollo Personal'].map((category) {
+                                return ListTile(
+                                  title: Text(category, style: const TextStyle(color: Colors.white)),
+                                  onTap: () {
+                                    ref.read(selectedCategoryProvider.notifier).state = category;
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              }).toList(),
+                            ],
+                          ),
+                        );
+                      },
+                    );
                   },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem<String>(
-                      enabled: false,
-                      child: Text(
-                        'Seleccionar categoría',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                    ),
-                    ...['Tecnología y Programación', 'Negocios y Emprendimiento', 'Diseño', 'Ciencias y Matemáticas', 'Idiomas', 'Desarrollo Personal'].map((category) {
-                      return PopupMenuItem(
-                        value: category,
-                        child: Text(category, style: const TextStyle(color: Colors.white)),
-                      );
-                    }).toList(),
-                  ],
-                  color: Colors.black, // Fondo negro para el menú desplegable
                 ),
               ],
             ),
+            const SizedBox(height: 15),
             if (selectedCategory != null)
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF207090),
+                  color: colors.primary,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -121,31 +134,6 @@ class CourseList extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: 15),
-            Row(
-              children: [
-                const Text(
-                  'Cursos',
-                  style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  onPressed: () => ref.refresh(coursesProvider),
-                  icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-                ),
-              ],
-            ),
-            if (loggedUser!.role == 'INSTRUCTOR')
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/course/create');
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Text('Crear Curso'), Icon(Icons.add)],
-                  ),
-                ),
-              ),
-            const SizedBox(height: 10),
             asyncCourses.when(
               data: (courses) {
                 final filteredCourses = courses.where((course) {
