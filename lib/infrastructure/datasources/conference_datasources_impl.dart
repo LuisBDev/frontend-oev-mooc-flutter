@@ -42,6 +42,19 @@ class ConferenceDatasourceImpl implements ConferenceDatasource {
   }
 
   @override
+  Future<void> deleteConferenceById(int conferenceId) async {
+    try {
+      final response = await _dio.delete('/conference/delete/$conferenceId');
+      if (response.statusCode != 204) {
+        throw Exception('Error al eliminar la conferencia');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+    return Future.value();
+  }
+
+  @override
   Future<Conference> addConference(int userId, ConferenceRequestDTO conferenceRequestDTO) async {
     try {
       final response = await _dio.post(
