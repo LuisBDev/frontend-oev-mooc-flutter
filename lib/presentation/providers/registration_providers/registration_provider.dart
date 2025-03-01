@@ -15,6 +15,20 @@ final registrationRepositoryProvider = Provider<RegistrationRepository>((ref) {
   return RegistrationRepositoryImpl(dataSource: datasource);
 });
 
+// Create Registration Provider
+final createRegistrationProvider = FutureProvider.family
+    .autoDispose<void, Map<String, int>>((ref, data) async {
+  final repository = ref.watch(registrationRepositoryProvider);
+  await repository.createRegistration(data['userId']!, data['conferenceId']!);
+});
+
+// Delete Registration Provider
+final deleteRegistrationProvider =
+    FutureProvider.family.autoDispose<void, int>((ref, registrationId) async {
+  final repository = ref.watch(registrationRepositoryProvider);
+  await repository.deleteRegistration(registrationId);
+});
+
 // Provider de lista de participantes inscritos a una conferencia
 final registeredUsersProvider =
     FutureProvider.family<List<Map<String, dynamic>>, int>(
