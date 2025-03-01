@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/conferences_providers/conferences_provider.dart';
 import 'package:oev_mobile_app/presentation/widgets/conference/conference_card.dart';
-import 'package:go_router/go_router.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/registered_conferences_screen.dart';
 
 // Provider para almacenar el término de búsqueda
 final searchQueryProvider = StateProvider<String>((ref) => "");
@@ -17,14 +17,18 @@ class ConferenceList extends ConsumerWidget {
     final asyncConferences = ref.watch(conferenceProvider);
     final searchQuery = ref.watch(searchQueryProvider);
     final loggedUser = ref.read(authProvider).token;
-    final isAdmin = loggedUser!.role == 'ADMIN';
+    final userRole = loggedUser!.role;
+    final isAdmin = userRole == 'ADMIN';
+    final canSeeRegistered =
+        userRole == 'STUDENT' || userRole == 'ADMINISTRATIVE';
 
     return Column(
       children: [
         const SizedBox(height: 20),
         Text(
           'Conferencias',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           'Conoce las conferencias disponibles',
@@ -67,28 +71,68 @@ class ConferenceList extends ConsumerWidget {
                 children: [
                   const Text(
                     'Conferencias',
-                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     onPressed: () => {
                       ref.refresh(conferenceProvider),
                     },
-                    icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                    icon:
+                        const Icon(Icons.refresh_rounded, color: Colors.white),
                   ),
                 ],
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 20),
-                child: Visibility(
-                  visible: isAdmin,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.push('/conference/create');
-                    },
-                    child: const Row(
-                      children: [Text('Crear Conferencia'), Icon(Icons.add)],
+                child: Row(
+                  children: [
+                    // Botón solo para ADMIN
+                    Visibility(
+                      visible: isAdmin,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RegisteredConferencesScreen(),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          children: [
+                            Text('Crear Conferencia'),
+                            Icon(Icons.add)
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 10), // Espaciado entre botones
+                    // Botón solo para STUDENT y ADMINISTRATIVE
+                    Visibility(
+                      visible: canSeeRegistered,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const RegisteredConferencesScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 255, 255)),
+                        child: const Row(
+                          children: [Text('Inscriptas')],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -99,7 +143,11 @@ class ConferenceList extends ConsumerWidget {
           child: asyncConferences.when(
             data: (conferences) {
               // Filtrar los cursos según el término de búsqueda
-              final filteredConferences = conferences.where((conference) => conference.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+              final filteredConferences = conferences
+                  .where((conference) => conference.name
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase()))
+                  .toList();
               if (filteredConferences.isEmpty) {
                 return const Center(
                   child: Text(
@@ -120,7 +168,8 @@ class ConferenceList extends ConsumerWidget {
                   ),
                   itemCount: filteredConferences.length,
                   itemBuilder: (context, index) {
-                    return ConferenceCard(conference: filteredConferences[index]);
+                    return ConferenceCard(
+                        conference: filteredConferences[index]);
                   },
                 ),
               );
