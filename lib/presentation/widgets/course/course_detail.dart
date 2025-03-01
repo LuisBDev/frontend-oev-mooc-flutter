@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
+import 'package:oev_mobile_app/presentation/providers/courses_providers/course_repository_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -25,6 +26,14 @@ class CourseDetailPage extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          if (isInstructor)
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.white),
+              onPressed: () =>
+                  _showEditCourseDialog(context, ref, courseAsync.value),
+            ),
+        ],
       ),
       body: courseAsync.when(
         data: (course) => _buildCourseDetail(context, ref, course),
@@ -260,5 +269,144 @@ class CourseDetailPage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _showEditCourseDialog(
+      BuildContext context, WidgetRef ref, Course? course) {
+    if (course == null) return;
+
+    final nameController = TextEditingController(text: course.name);
+    final descriptionController =
+        TextEditingController(text: course.description);
+    final categoryController = TextEditingController(text: course.category);
+    final benefitsController = TextEditingController(text: course.benefits);
+    final targetAudienceController =
+        TextEditingController(text: course.targetAudience);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF242636),
+          title: const Text('Editar Curso',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre del curso',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Descripción',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                TextField(
+                  controller: categoryController,
+                  decoration: const InputDecoration(
+                    labelText: 'Categoría',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                TextField(
+                  controller: benefitsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Lo que aprenderás',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                TextField(
+                  controller: targetAudienceController,
+                  decoration: const InputDecoration(
+                    labelText: '¿Para quién es este curso?',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Cancelar',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold)),
+            ),
+            FilledButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.blue),
+              ),
+              onPressed: () {
+                _updateCourse(
+                    ref,
+                    course.id,
+                    nameController.text,
+                    descriptionController.text,
+                    categoryController.text,
+                    benefitsController.text,
+                    targetAudienceController.text);
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Actualizar',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updateCourse(
+      WidgetRef ref,
+      int courseId,
+      String name,
+      String description,
+      String category,
+      String benefits,
+      String targetAudience) {
+    final courseData = {
+      "name": name,
+      "description": description,
+      "category": category,
+      "benefits": benefits,
+      "targetAudience": targetAudience
+    };
+
+    ref
+        .read(courseRepositoryProvider)
+        .updateCourse(courseId, courseData)
+        .then((_) {
+      ScaffoldMessenger.of(ref.context).showSnackBar(
+        const SnackBar(content: Text('Curso actualizado exitosamente!')),
+      );
+      // Usar el valor devuelto por refresh
+      final updatedCourse = ref.refresh(courseByIdProvider(courseId));
+      print(updatedCourse); // O hacer algo con el valor actualizado
+    }).catchError((error) {
+      ScaffoldMessenger.of(ref.context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar el curso: $error')),
+      );
+    });
   }
 }
