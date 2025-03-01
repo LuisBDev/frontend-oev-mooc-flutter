@@ -28,3 +28,11 @@ final deleteRegistrationProvider =
   final repository = ref.watch(registrationRepositoryProvider);
   await repository.deleteRegistration(registrationId);
 });
+
+// Provider de lista de participantes inscritos a una conferencia
+final registeredUsersProvider =
+    FutureProvider.family<List<Map<String, dynamic>>, int>(
+        (ref, conferenceId) async {
+  final repository = ref.read(registrationRepositoryProvider);
+  return repository.findRegisteredUsersByConferenceId(conferenceId);
+});
