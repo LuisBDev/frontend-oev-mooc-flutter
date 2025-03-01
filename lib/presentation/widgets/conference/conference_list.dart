@@ -21,7 +21,8 @@ class ConferenceList extends ConsumerWidget {
     final loggedUser = ref.read(authProvider).token;
     final userRole = loggedUser!.role;
     final isAdmin = userRole == 'ADMIN';
-    final canSeeRegistered = userRole == 'STUDENT' || userRole == 'ADMINISTRATIVE';
+    final canSeeRegistered =
+        userRole == 'STUDENT' || userRole == 'ADMINISTRATIVE';
 
     return Stack(
       children: [
@@ -30,7 +31,10 @@ class ConferenceList extends ConsumerWidget {
             const SizedBox(height: 20),
             Text(
               'Conferencias',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             const Text(
               'Conoce las conferencias disponibles',
@@ -43,7 +47,9 @@ class ConferenceList extends ConsumerWidget {
                 child: TextField(
                   cursorColor: colors.primary,
                   onChanged: (value) {
-                    ref.read(searchQueryProvider.notifier).update((state) => value);
+                    ref
+                        .read(searchQueryProvider.notifier)
+                        .update((state) => value);
                   },
                   style: const TextStyle(color: Colors.white),
                   onTapOutside: (event) => FocusScope.of(context).unfocus(),
@@ -73,13 +79,17 @@ class ConferenceList extends ConsumerWidget {
                     children: [
                       const Text(
                         'Conferencias',
-                        style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         onPressed: () => {
                           ref.refresh(conferenceProvider),
                         },
-                        icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                        icon: const Icon(Icons.refresh_rounded,
+                            color: Colors.white),
                       ),
                     ],
                   ),
@@ -94,12 +104,16 @@ class ConferenceList extends ConsumerWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const CreateConferenceScreen(),
+                                  builder: (context) =>
+                                      const CreateConferenceScreen(),
                                 ),
                               );
                             },
                             child: const Row(
-                              children: [Text('Crear Conferencia'), Icon(Icons.add)],
+                              children: [
+                                Text('Crear Conferencia'),
+                                Icon(Icons.add)
+                              ],
                             ),
                           ),
                         ),
@@ -111,11 +125,14 @@ class ConferenceList extends ConsumerWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisteredConferencesScreen(),
+                                  builder: (context) =>
+                                      const RegisteredConferencesScreen(),
                                 ),
                               );
                             },
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 255, 255, 255)),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255)),
                             child: const Row(
                               children: [Text('Inscripciones')],
                             ),
@@ -131,7 +148,11 @@ class ConferenceList extends ConsumerWidget {
             Expanded(
               child: asyncConferences.when(
                 data: (conferences) {
-                  final filteredConferences = conferences.where((conference) => conference.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+                  final filteredConferences = conferences
+                      .where((conference) => conference.name
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
+                      .toList();
                   if (filteredConferences.isEmpty) {
                     return const Center(
                       child: Text(
@@ -144,7 +165,8 @@ class ConferenceList extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
@@ -152,7 +174,8 @@ class ConferenceList extends ConsumerWidget {
                       ),
                       itemCount: filteredConferences.length,
                       itemBuilder: (context, index) {
-                        return ConferenceCard(conference: filteredConferences[index]);
+                        return ConferenceCard(
+                            conference: filteredConferences[index]);
                       },
                     ),
                   );

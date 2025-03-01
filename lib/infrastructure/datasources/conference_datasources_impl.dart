@@ -75,4 +75,21 @@ class ConferenceDatasourceImpl implements ConferenceDatasource {
       throw Exception('Error en la petición: $e');
     }
   }
+
+  @override
+  Future<void> updateConference(
+      int conferenceId, Map<String, dynamic> conferenceData) async {
+    try {
+      final response = await _dio.patch(
+        '/conference/update/$conferenceId',
+        data: conferenceData,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Error al actualizar la conferencia');
+      }
+    } catch (e) {
+      throw Exception('Error en la petición: $e');
+    }
+  }
 }
