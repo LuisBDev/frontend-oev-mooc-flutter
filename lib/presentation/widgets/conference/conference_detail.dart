@@ -4,6 +4,7 @@ import 'package:oev_mobile_app/domain/entities/conference/conference_model.dart'
 import 'package:oev_mobile_app/presentation/providers/conferences_providers/conferences_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/registration_providers/registration_provider.dart';
+import 'package:oev_mobile_app/presentation/screens/conference/conference_list_participants.dart';
 
 final snackbarMessageProvider = StateProvider<Map<String, dynamic>?>((ref) => null);
 
@@ -143,6 +144,37 @@ class ConferenceDetailPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Botón de Ver Registrados
+          Visibility(
+            visible: !isVisible,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConferenceListParticipantsPage(conferenceId: conference.id),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Ver registrados',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Sección de Descripción
           _buildSection("Descripción", conference.description),
           const SizedBox(height: 16),
         ],
