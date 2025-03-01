@@ -6,9 +6,24 @@ class CertificateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, String>> certificates = [
-      {"courseName": "Adobe Illustrator desde cero hasta intermedio", "lessons": "24", "completed": "24", "students": "5k"},
-      {"courseName": "Carrera al Éxito: Potencia tu CV", "lessons": "30", "completed": "30", "students": "2k"},
-      {"courseName": "Eleva tu Gestión de TI: COBIT en Acción", "lessons": "45", "completed": "45", "students": "3k"},
+      {
+        "courseName": "Adobe Illustrator desde cero hasta intermedio",
+        "lessons": "24",
+        "completed": "24",
+        "students": "5k"
+      },
+      {
+        "courseName": "Carrera al Éxito: Potencia tu CV",
+        "lessons": "30",
+        "completed": "30",
+        "students": "2k"
+      },
+      {
+        "courseName": "Eleva tu Gestión de TI: COBIT en Acción",
+        "lessons": "45",
+        "completed": "45",
+        "students": "3k"
+      },
     ];
 
     return Scaffold(
@@ -18,7 +33,8 @@ class CertificateScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           "Mis Certificados",
-          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -82,7 +98,8 @@ class CertificateCard extends StatelessWidget {
                     height: 60,
                     color: Colors.grey[700],
                     child: const Center(
-                      child: Icon(Icons.broken_image, color: Colors.red, size: 30),
+                      child:
+                          Icon(Icons.broken_image, color: Colors.red, size: 30),
                     ),
                   );
                 },
@@ -97,7 +114,10 @@ class CertificateCard extends StatelessWidget {
                 children: [
                   Text(
                     courseName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -106,15 +126,22 @@ class CertificateCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.menu_book, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      Text("$lessons", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(lessons,
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 12)),
                       const SizedBox(width: 8),
-                      const Icon(Icons.check_circle, size: 14, color: Colors.grey),
+                      const Icon(Icons.check_circle,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      Text("$completed", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(completed,
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 12)),
                       const SizedBox(width: 8),
                       const Icon(Icons.people, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      Text("$students", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(students,
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 12)),
                     ],
                   ),
                 ],

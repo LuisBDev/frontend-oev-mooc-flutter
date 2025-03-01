@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/lesson_providers/lesson_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/courses_providers/enrollment_provider.dart';
+import '../../providers/enrollment_providers/enrollment_provider.dart';
 
 class CourseDetailPage extends ConsumerWidget {
   final int courseId;
@@ -13,6 +14,8 @@ class CourseDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final courseAsync = ref.watch(courseByIdProvider(courseId));
+    final loggedUser = ref.read(authProvider).token;
+    final isInstructor = loggedUser?.role == 'INSTRUCTOR';
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C),
@@ -33,7 +36,8 @@ class CourseDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCourseDetail(BuildContext context, WidgetRef ref, Course course) {
+  Widget _buildCourseDetail(
+      BuildContext context, WidgetRef ref, Course course) {
     final loggedUser = ref.read(authProvider).token;
 
     return SingleChildScrollView(
@@ -71,7 +75,8 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.people, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("${course.totalStudents}", style: const TextStyle(color: Colors.white70)),
+                    Text("${course.totalStudents}",
+                        style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -80,7 +85,8 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.attach_money, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("S/. ${course.price}", style: const TextStyle(color: Colors.white70)),
+                    Text("S/. ${course.price}",
+                        style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -89,7 +95,8 @@ class CourseDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.favorite, color: Colors.redAccent),
                     const SizedBox(height: 5),
-                    Text("${course.favorite}", style: const TextStyle(color: Colors.white70)),
+                    Text("${course.favorite}",
+                        style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -110,10 +117,12 @@ class CourseDetailPage extends ConsumerWidget {
             visible: loggedUser?.role == 'STUDENT',
             child: Center(
               child: ElevatedButton(
-                onPressed: () => _showEnrollmentConfirmation(context, ref, course.id),
+                onPressed: () =>
+                    _showEnrollmentConfirmation(context, ref, course.id),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -144,20 +153,33 @@ class CourseDetailPage extends ConsumerWidget {
   }
 
   // Confirmation Modal
-  void _showEnrollmentConfirmation(BuildContext context, WidgetRef ref, int courseId) {
+  void _showEnrollmentConfirmation(
+      BuildContext context, WidgetRef ref, int courseId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF242636),
-          title: const Text('Confirmación', style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold)),
-          content: const Text('¿Seguro que quieres inscribirte el curso?', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.normal)),
+          title: const Text('Confirmación',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold)),
+          content: const Text('¿Seguro que quieres inscribirte el curso?',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.normal)),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
               },
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
+              child: const Text('Cancelar',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold)),
             ),
             FilledButton(
               style: ButtonStyle(
@@ -168,7 +190,11 @@ class CourseDetailPage extends ConsumerWidget {
                 Navigator.of(context).pop(); // Cierra el diálogo
                 _enrollUser(ref, courseId);
               },
-              child: const Text('Aceptar', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
+              child: const Text('Aceptar',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold)),
             ),
           ],
         );

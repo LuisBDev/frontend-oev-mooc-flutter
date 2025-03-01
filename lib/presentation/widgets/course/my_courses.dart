@@ -4,7 +4,7 @@ import 'package:oev_mobile_app/domain/entities/course/course_model.dart';
 import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
-import 'package:go_router/go_router.dart';
+import 'package:oev_mobile_app/presentation/providers/enrollment_providers/enrollment_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_content.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado.dart';
 import 'package:oev_mobile_app/presentation/screens/course/course_editable_content.dart';
@@ -75,7 +75,7 @@ class MyCourses extends ConsumerWidget {
               ),
               IconButton(
                 onPressed: () => {
-                  ref.refresh(coursesProvider),
+                  isStudentOrAdmin ? ref.refresh(enrolledCoursesProvider) : ref.refresh(coursesPublishedByInstructorProvider),
                 },
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white),
               ),
@@ -237,76 +237,130 @@ class PublishedCourseCard extends StatelessWidget {
 }
 
 // --- Tarjeta de cursos ENROLADOS por el estudiante ---
-class EnrolledCourseCard extends StatelessWidget {
+class EnrolledCourseCard extends ConsumerWidget {
   final CourseEnrolled enrolledCourse;
 
   const EnrolledCourseCard({required this.enrolledCourse, super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseContent(courseEnrolled: enrolledCourse),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Imagen del curso
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                enrolledCourse.courseImageUrl,
-                width: double.infinity,
-                height: 150,
-                fit: BoxFit.cover,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CourseContent(courseEnrolled: enrolledCourse),
               ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(15),
             ),
-            const SizedBox(height: 8),
-
-            // Nombre del curso
-            Text(
-              enrolledCourse.courseName,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Imagen del curso
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    enrolledCourse.courseImageUrl,
+                    width: double.infinity,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Nombre del curso
+                Text(
+                  enrolledCourse.courseName,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                // Nombre del instructor
+                Text(
+                  enrolledCourse.instructorName,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 4),
+                // Progreso del curso
+                LinearProgressIndicator(
+                  value: enrolledCourse.progress / 100,
+                  backgroundColor: Colors.grey,
+                  color: Colors.blue,
+                  minHeight: 5,
+                ),
+                const SizedBox(height: 4),
+                // Texto del progreso
+                Text(
+                  'Progreso: ${enrolledCourse.progress}%',
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-
-            // Nombre del instructor
-            Text(
-              enrolledCourse.instructorName,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-
-            // Progreso del curso
-            LinearProgressIndicator(
-              value: enrolledCourse.progress / 100,
-              backgroundColor: Colors.grey,
-              color: Colors.blue,
-              minHeight: 5,
-            ),
-            const SizedBox(height: 4),
-
-            // Texto del progreso
-            Text(
-              'Progreso: ${enrolledCourse.progress}%',
-              style: const TextStyle(fontSize: 12, color: Colors.white),
-            ),
-          ],
+          ),
         ),
-      ),
+        // Botón de eliminación (X) en la esquina superior derecha
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.delete, color: Colors.white),
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: const Color(0xFF242636),
+                    title: const Text('Confirmar', style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold)),
+                    content: const Text(
+                      '¿Estás seguro de que deseas eliminar tu inscripción a este curso?',
+                      style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.normal),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancelar', style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold)),
+                      ),
+                      FilledButton(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(Colors.blue),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text(
+                          'Aceptar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (confirm ?? false) {
+                await ref.read(enrollmentDeleteProvider(enrolledCourse.id).future);
+                // Invalida el provider que recarga la lista de cursos inscritos
+                ref.invalidate(enrolledCoursesProvider);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Inscripción eliminada correctamente')),
+                );
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 }

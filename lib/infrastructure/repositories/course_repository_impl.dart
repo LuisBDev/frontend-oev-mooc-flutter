@@ -22,15 +22,18 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
-  Future<void> addCourse(int userId, CourseRequestDTO courseRequestDTO) {
-    throw courseDatasource.addCourse(userId, courseRequestDTO);
+  Future<Course> addCourse(int userId, CourseRequestDTO courseRequestDTO) {
+    return courseDatasource.addCourse(userId, courseRequestDTO);
   }
 
   @override
   Future<Course> getCourseById(int courseId) {
     return courseDatasource.getCourseById(courseId);
   }
-
+  @override
+  Future<List<Course>> getRecommendedCourses() {
+    return courseDatasource.getRecommendedCourses();
+  }
   @override
   getCoursesPublishedByInstructor(int id) {
     return courseDatasource.getCoursesPublishedByInstructor(id);
@@ -39,5 +42,10 @@ class CourseRepositoryImpl implements CourseRepository {
   @override
   Future<List<LessonProgress>> getLessonsByUserIdAndCourseId(int userId, int courseId) {
     return courseDatasource.getLessonsByUserIdAndCourseId(userId, courseId);
+  }
+
+  @override
+  Future<void> deleteCourse(int courseId) {
+    return courseDatasource.deleteCourse(courseId);
   }
 }

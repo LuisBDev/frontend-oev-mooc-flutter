@@ -3,8 +3,8 @@ import 'package:oev_mobile_app/domain/entities/dto/course_enrolled.dart';
 import 'package:oev_mobile_app/domain/entities/lesson/lesson_progress_model.dart';
 import 'package:oev_mobile_app/presentation/providers/courses_providers/courses_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/course/certificado_pago.dart'; // Importa la pantalla de pago
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/presentation/screens/lesson/video_lesson_screen.dart';
 
 class CourseContent extends ConsumerWidget {
   final CourseEnrolled courseEnrolled;
@@ -13,7 +13,8 @@ class CourseContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lessonsAsyncValue = ref.watch(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId));
+    final lessonsAsyncValue =
+        ref.watch(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId));
 
     return Scaffold(
       backgroundColor: const Color(0xff1E1E2C), // 🎨 Fondo oscuro
@@ -59,8 +60,11 @@ class CourseContent extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => ref.refresh(lessonsByUserIdAndCourseIdProvider(courseEnrolled.courseId)),
-                    icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                    onPressed: () => ref.refresh(
+                        lessonsByUserIdAndCourseIdProvider(
+                            courseEnrolled.courseId)),
+                    icon:
+                        const Icon(Icons.refresh_rounded, color: Colors.white),
                   ),
                 ],
               ),
@@ -77,23 +81,29 @@ class CourseContent extends ConsumerWidget {
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: courseEnrolled.progress / 100,
-                backgroundColor: Colors.grey[700], // Fondo gris oscuro para barra
+                backgroundColor:
+                    Colors.grey[700], // Fondo gris oscuro para barra
                 color: Colors.blueAccent, // Color del progreso
                 minHeight: 8,
               ),
               Visibility(
                 visible: courseEnrolled.progress == 0,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // Alinea el botón a la derecha
+                  mainAxisAlignment:
+                      MainAxisAlignment.start, // Alinea el botón a la derecha
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 14.0, left: 15.0), // Añade padding solo en la parte superior y derecha
+                      padding: const EdgeInsets.only(
+                          top: 14.0,
+                          left:
+                              15.0), // Añade padding solo en la parte superior y derecha
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CertificadoPagoScreen(courseEnrolled: courseEnrolled),
+                              builder: (context) => CertificadoPagoScreen(
+                                  courseEnrolled: courseEnrolled),
                             ),
                           );
                         },
@@ -102,8 +112,10 @@ class CourseContent extends ConsumerWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueGrey, // Color del botón
                           foregroundColor: Colors.white, // Texto blanco
-                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
-                          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 13, vertical: 6),
+                          textStyle: const TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -119,7 +131,8 @@ class CourseContent extends ConsumerWidget {
                   child: ListView.builder(
                     itemCount: lessons.length,
                     itemBuilder: (context, index) {
-                      return LessonCard(lesson: lessons[index], index: index + 1);
+                      return LessonCard(
+                          lesson: lessons[index], index: index + 1);
                     },
                   ),
                 ),
@@ -149,7 +162,9 @@ class LessonCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(
-          lesson.status == 'COMPLETED' ? Icons.check_circle : Icons.radio_button_unchecked,
+          lesson.status == 'COMPLETED'
+              ? Icons.check_circle
+              : Icons.radio_button_unchecked,
           color: lesson.status == 'COMPLETED' ? Colors.green : Colors.white,
         ),
         title: Text(
@@ -161,7 +176,13 @@ class LessonCard extends StatelessWidget {
           style: TextStyle(color: Colors.white70),
         ),
         onTap: () {
-          // Acción al tocar una lección
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  VideoLessonScreen(lessonVideoKey: lesson.lessonVideoKey!),
+            ),
+          );
         },
       ),
     );

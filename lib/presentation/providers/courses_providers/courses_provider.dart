@@ -35,23 +35,51 @@ final lessonsByUserIdAndCourseIdProvider = FutureProvider.family.autoDispose<Lis
   return repository.getLessonsByUserIdAndCourseId(auth.token!.id, courseId);
 });
 
-final addCourseProvider = StateNotifierProvider<AddCourseNotifier, AsyncValue<void>>((ref) {
+final recommendedCoursesProvider = FutureProvider.autoDispose<List<Course>>((ref) async {
+  final repository = ref.watch(courseRepositoryProvider);
+  return repository.getRecommendedCourses();
+});
+
+final deleteCourseProvider = StateNotifierProvider<DeleteCourseNotifier, AsyncValue<void>>((ref) {
+  final repository = ref.watch(courseRepositoryProvider);
+  return DeleteCourseNotifier(repository);
+});
+
+class DeleteCourseNotifier extends StateNotifier<AsyncValue<void>> {
+  final CourseRepository repository;
+
+  DeleteCourseNotifier(this.repository) : super(const AsyncData(null));
+
+  Future<void> deleteCourse(int courseId) async {
+    state = const AsyncLoading();
+    try {
+      await repository.deleteCourse(courseId);
+      state = const AsyncData(null);
+    } catch (e) {
+      state = AsyncError(e.toString(), StackTrace.current);
+    }
+  }
+}
+
+final addCourseProvider = StateNotifierProvider<AddCourseNotifier, AsyncValue<Course>>((ref) {
   final repository = ref.watch(courseRepositoryProvider);
   return AddCourseNotifier(repository);
 });
 
-class AddCourseNotifier extends StateNotifier<AsyncValue<void>> {
+class AddCourseNotifier extends StateNotifier<AsyncValue<Course>> {
   final CourseRepository repository;
 
-  AddCourseNotifier(this.repository) : super(const AsyncData(null));
+  AddCourseNotifier(this.repository) : super(AsyncData(Course(id: 0, name: '', userId: 0, instructorName: '')));
 
-  Future<void> addCourse(int userId, CourseRequestDTO courseRequestDTO) async {
+  Future<Course> addCourse(int userId, CourseRequestDTO courseRequestDTO) async {
     state = const AsyncLoading();
     try {
-      await repository.addCourse(userId, courseRequestDTO);
-      state = const AsyncData(null);
+      final course = await repository.addCourse(userId, courseRequestDTO);
+      state = AsyncData(course);
+      return course;
     } catch (e) {
       state = AsyncError(e.toString(), StackTrace.current);
+      rethrow;
     }
   }
 }

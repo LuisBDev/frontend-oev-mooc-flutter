@@ -1,235 +1,191 @@
 import 'package:flutter/material.dart';
-import 'conference_detail.dart'; // Importa ConferenciaScreen para la navegación
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oev_mobile_app/presentation/providers/auth_provider.dart';
+import 'package:oev_mobile_app/presentation/providers/conferences_providers/conferences_provider.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/conference_card.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/registered_conferences_screen.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/conference_creation.dart';
+import 'package:oev_mobile_app/presentation/widgets/conference/user_conferences_screen.dart';
 
-class Course {
-  final String name;
-  final int progress;
-  final bool hasCertificate;
-  final String instructor;
-  final int students;
-  final int lessons;
-  final int likes;
-  final String imageUrl;
+// Provider para almacenar el término de búsqueda
+final searchQueryProvider = StateProvider<String>((ref) => "");
 
-  Course({
-    required this.name,
-    required this.progress,
-    required this.hasCertificate,
-    required this.instructor,
-    required this.students,
-    required this.lessons,
-    required this.likes,
-    required this.imageUrl,
-  });
-}
-
-class ConferenceList extends StatefulWidget {
+class ConferenceList extends ConsumerWidget {
   const ConferenceList({super.key});
 
   @override
-  State<ConferenceList> createState() => _ConferenceListState();
-}
-
-class _ConferenceListState extends State<ConferenceList> {
-  String _searchTerm = '';
-  String _filter = 'Todos';
-  bool _isLoading = false;
-
-  final List<Course> _courses = [
-    Course(
-      name: "Adobe Illustrator desde cero hasta intermedio",
-      progress: 65,
-      hasCertificate: false,
-      instructor: "Luis Balarezo",
-      students: 24,
-      lessons: 9,
-      likes: 5000,
-      imageUrl: 'assets/images/photoshop_course.png',
-    ),
-    Course(
-      name: "Blender desde cero hasta convertirte en master",
-      progress: 25,
-      hasCertificate: false,
-      instructor: "Jose Rodriguez",
-      students: 32,
-      lessons: 12,
-      likes: 9000,
-      imageUrl: 'assets/images/fisinext.png',
-    ),
-    Course(
-      name: "Ecuaciones diferenciales desde cero hasta avanzado",
-      progress: 65,
-      hasCertificate: false,
-      instructor: "Jose Rodriguez",
-      students: 18,
-      lessons: 15,
-      likes: 7000,
-      imageUrl: 'assets/images/fisinext.png',
-    ),
-    Course(
-      name: "Álgebra Lineal desde cero hasta avanzado",
-      progress: 100,
-      hasCertificate: true,
-      instructor: "Jose Rodriguez",
-      students: 48,
-      lessons: 7,
-      likes: 3000,
-      imageUrl: 'assets/images/photoshop_course.png',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+    final asyncConferences = ref.watch(conferenceProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
+    final loggedUser = ref.read(authProvider).token;
+    final userRole = loggedUser!.role;
+    final isAdmin = userRole == 'ADMIN';
+    final canSeeRegistered = userRole == 'STUDENT' || userRole == 'ADMINISTRATIVE';
 
-    // Filtrar cursos según el buscador y el filtro activo
-    List<Course> filteredCourses = _courses.where((curso) {
-      bool matchesSearch = curso.name.toLowerCase().contains(_searchTerm.toLowerCase());
-      if (_filter == 'Completados') return matchesSearch && curso.progress == 100;
-      if (_filter == 'Certificados') return matchesSearch && curso.hasCertificate;
-      return matchesSearch;
-    }).toList();
-
-    return Column(
+    return Stack(
       children: [
-        const SizedBox(height: 20),
-
-        // 🗷 Título "Mis Cursos"
-        const Padding(
-          padding: EdgeInsets.only(top: 20, bottom: 8),
-          child: Center(
-            child: Text(
+        Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
               'Conferencias',
-              style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-          ),
-        ),
-
-        // 🔍 Barra de búsqueda
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: SizedBox(
-            width: 420,
-            child: TextField(
-              cursorColor: colors.primary,
-              onChanged: (value) {
-                setState(() {
-                  _searchTerm = value;
-                });
-              },
-              style: const TextStyle(color: Colors.white),
-              onTapOutside: (event) => FocusScope.of(context).unfocus(),
-              decoration: const InputDecoration(
-                hintText: 'Buscar por conferencia',
-                hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(Icons.search),
-                filled: true,
-                fillColor: Color(0xff343646),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                ),
-              ),
+            const Text(
+              'Conoce las conferencias disponibles',
+              style: TextStyle(color: Colors.white70),
             ),
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        // 📜 Lista de Cursos
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // 2 tarjetas por fila
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.85, // Ajuste para evitar overflow
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+              child: SizedBox(
+                width: 420,
+                child: TextField(
+                  cursorColor: colors.primary,
+                  onChanged: (value) {
+                    ref.read(searchQueryProvider.notifier).update((state) => value);
+                  },
+                  style: const TextStyle(color: Colors.white),
+                  onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar por conferencia',
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(Icons.search),
+                    filled: true,
+                    fillColor: Color(0xff343646),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
-                    itemCount: filteredCourses.length.clamp(0, 6), // Máximo 3 filas (6 cursos)
-                    itemBuilder: (context, index) {
-                      return CursoCard(filteredCourses[index]);
-                    },
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
                   ),
                 ),
-        ),
-      ],
-    );
-  }
-}
-
-// 🎨 Diseño de la Tarjeta de Curso
-class CursoCard extends StatelessWidget {
-  final Course curso;
-
-  const CursoCard(this.curso, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Navegar a la pantalla ConferenciaScreen al hacer clic en el curso
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ConferenceScreen(curso: curso), // Pasa el curso seleccionado
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 📸 Imagen del Curso
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.asset(
-                  curso.imageUrl,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
               ),
             ),
-            const SizedBox(height: 8),
-
-            // 📜 Información del curso
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'Conferencias',
+                        style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        onPressed: () => {
+                          ref.refresh(conferenceProvider),
+                        },
+                        icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, right: 20),
+                    child: Row(
+                      children: [
+                        Visibility(
+                          visible: isAdmin,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const CreateConferenceScreen(),
+                                ),
+                              );
+                            },
+                            child: const Row(
+                              children: [Text('Crear Conferencia'), Icon(Icons.add)],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Visibility(
+                          visible: canSeeRegistered,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisteredConferencesScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 255, 255, 255)),
+                            child: const Row(
+                              children: [Text('Inscripciones')],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      curso.name,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              child: asyncConferences.when(
+                data: (conferences) {
+                  final filteredConferences = conferences.where((conference) => conference.name.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+                  if (filteredConferences.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No hay conferencias publicadas',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    );
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 4 / 4.4,
+                      ),
+                      itemCount: filteredConferences.length,
+                      itemBuilder: (context, index) {
+                        return ConferenceCard(conference: filteredConferences[index]);
+                      },
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      curso.instructor,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text('Error: $error')),
               ),
             ),
           ],
         ),
-      ),
+
+        // Botón flotante en la parte inferior derecha
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: Visibility(
+            visible: isAdmin,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserConferencesScreen(),
+                  ),
+                );
+              },
+              label: const Text("Mis Conferencias"),
+              icon: const Icon(Icons.event_note),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
