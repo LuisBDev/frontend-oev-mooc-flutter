@@ -6,10 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/registration_providers/registration_provider.dart';
 import 'package:oev_mobile_app/presentation/screens/conference/conference_list_participants.dart';
 
-import '../../screens/course/course_editable_content.dart';
-
-final snackbarMessageProvider = StateProvider<String?>((ref) => null);
-
+final snackbarMessageProvider = StateProvider<Map<String, dynamic>?>((ref) => null);
 
 class ConferenceDetailPage extends ConsumerWidget {
   final int conferenceId;
@@ -18,24 +15,29 @@ class ConferenceDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<String?>(snackbarMessageProvider, (previous, next) {
-      if (next != null && next.isNotEmpty) {
+    final conferenceAsync = ref.watch(conferenceByIdProvider(conferenceId));
+
+    ref.listen<Map<String, dynamic>?>(snackbarMessageProvider, (previous, next) {
+      if (next != null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(
           SnackBar(
-            content: Text(next, style: const TextStyle(color: Colors.white)),
+            content: Text(next['message'], style: const TextStyle(color: Colors.white)),
             backgroundColor: Colors.blueAccent,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 1),
           ),
         )
             .closed
-            .then((_) => Navigator.pop(context));
-        ref.read(snackbarMessageProvider.notifier).state = null; // Limpiar mensaje
+            .then((_) {
+          if (next['shouldPop'] == true) {
+            Navigator.pop(context);
+          }
+        });
+        ref.read(snackbarMessageProvider.notifier).state = null;
       }
     });
 
-    final conferenceAsync = ref.watch(conferenceByIdProvider(conferenceId));
     return Scaffold(
       backgroundColor: const Color(0xFF1E1E2C),
       appBar: AppBar(
@@ -55,12 +57,9 @@ class ConferenceDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCourseDetail(
-      BuildContext context, WidgetRef ref, Conference conference) {
+  Widget _buildCourseDetail(BuildContext context, WidgetRef ref, Conference conference) {
     final loggedUser = ref.read(authProvider).token;
-    final isVisible = loggedUser?.role == 'STUDENT' ||
-        loggedUser?.role == 'ADMINISTRATIVE' ||
-        loggedUser?.role == 'INSTRUCTOR';
+    final isVisible = loggedUser?.role == 'STUDENT' || loggedUser?.role == 'ADMINISTRATIVE' || loggedUser?.role == 'INSTRUCTOR';
     final isAdmin = loggedUser?.role == 'ADMIN';
 
     return SingleChildScrollView(
@@ -78,8 +77,6 @@ class ConferenceDetailPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Nombre del curso
           Text(
             conference.name,
             style: const TextStyle(
@@ -89,8 +86,6 @@ class ConferenceDetailPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-
-          // Fila con cantidad de alumnos, costo y favoritos
           Row(
             children: [
               Expanded(
@@ -98,8 +93,7 @@ class ConferenceDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.category, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("${conference.category}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${conference.category}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -108,8 +102,7 @@ class ConferenceDetailPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.people, color: Colors.white70),
                     const SizedBox(height: 5),
-                    Text("${conference.totalStudents}",
-                        style: const TextStyle(color: Colors.white70)),
+                    Text("${conference.totalStudents}", style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -119,12 +112,7 @@ class ConferenceDetailPage extends ConsumerWidget {
                     const Icon(Icons.update, color: Colors.white70),
                     const SizedBox(height: 5),
                     Text(
-                      conference.lastUpdate != null
-                          ? conference.lastUpdate!
-                              .toLocal()
-                              .toString()
-                              .split(' ')[0]
-                          : '',
+                      conference.lastUpdate != null ? conference.lastUpdate!.toLocal().toString().split(' ')[0] : '',
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ],
@@ -132,36 +120,19 @@ class ConferenceDetailPage extends ConsumerWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          // Nombre del creador
-          Text(
-            "Organizador: ${conference.creatorName}",
-            style: const TextStyle(fontSize: 16, color: Colors.white70),
-          ),
+          Text("Organizador: ${conference.creatorName}", style: const TextStyle(fontSize: 16, color: Colors.white70)),
           const SizedBox(height: 16),
-
-          // Última actualización
-          Text(
-            "Fecha de la conferencia: ${conference.date.toLocal().toString().split(' ')[0]}",
-            // "Fecha de la conferencia: 22 de octubre de 2021",
-            style: const TextStyle(fontSize: 16, color: Colors.white70),
-          ),
-
+          Text("Fecha de la conferencia: ${conference.date.toLocal().toString().split(' ')[0]}", style: const TextStyle(fontSize: 16, color: Colors.white70)),
           const SizedBox(height: 20),
-
-          // Botón de Inscribirse
           Visibility(
             visible: isVisible,
             child: Center(
               child: ElevatedButton(
-                onPressed: () =>
-                    _showRegistrationConfirmation(context, ref, conference.id),
+                onPressed: () => _enrollUser(ref, context, conference.id),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -254,85 +225,25 @@ class ConferenceDetailPage extends ConsumerWidget {
       ),
     );
   }
-}
 
-  void _showRegistrationConfirmation(
-      BuildContext context, WidgetRef ref, int conferenceId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF242636),
-          title: const Text('Confirmación',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold)),
-          content: const Text(
-              '¿Seguro que quieres registrarte en la conferencia?',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal)),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: const Text('Cancelar',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold)),
-            ),
-            FilledButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(Colors.blue),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-                _enrollUser(ref, context, conferenceId);
-              },
-              child: const Text('Aceptar',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _enrollUser(WidgetRef ref, BuildContext context, int conferenceId) {
+  Future<void> _enrollUser(WidgetRef ref, BuildContext context, int conferenceId) async {
     final userId = ref.read(authProvider).token?.id;
     if (userId == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Usuario no autenticado')),
-        );
-      }
+      ref.read(snackbarMessageProvider.notifier).state = {'message': 'Error: Usuario no autenticado'};
       return;
     }
 
     final registrationData = {'userId': userId, 'conferenceId': conferenceId};
-    ref.read(createRegistrationProvider(registrationData).future).then((_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inscripción exitosa!')),
-        );
-      }
-    }).catchError((error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $error')),
-        );
-      }
-    });
+    try {
+      await ref.read(createRegistrationProvider(registrationData).future);
+      ref.read(snackbarMessageProvider.notifier).state = {'message': 'Inscripción exitosa!', 'shouldPop': true};
+    } catch (error) {
+      ref.read(snackbarMessageProvider.notifier).state = {'message': 'Error: $error'};
+    }
   }
+}
 
-  void _showDeleteConfirmation(
+void _showDeleteConfirmation(
     BuildContext context, WidgetRef ref, int conferenceId) {
   showDialog(
     context: context,
@@ -361,8 +272,8 @@ class ConferenceDetailPage extends ConsumerWidget {
 void _deleteConference(WidgetRef ref, BuildContext context, int conferenceId) {
   ref.read(deleteConferenceProvider(conferenceId).future).then((_) {
     ref.invalidate(conferenceProvider);
-    ref.read(snackbarMessageProvider.notifier).state = "Conferencia eliminada correctamente";
+    ref.read(snackbarMessageProvider.notifier).state = {'message': 'Conferencia eliminada correctamente', 'shouldPop': true};
   }).catchError((error) {
-    ref.read(snackbarMessageProvider.notifier).state = "Error al eliminar la conferencia";
+    ref.read(snackbarMessageProvider.notifier).state = {'message': 'Error: $error'};
   });
 }
