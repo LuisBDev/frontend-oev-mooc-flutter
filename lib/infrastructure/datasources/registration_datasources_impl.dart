@@ -12,7 +12,6 @@ class RegistrationDatasourceImpl implements RegistrationDatasource {
     ),
   );
 
-
   @override
   Future<void> createRegistration(int userId, int conferenceId) async {
     try {
@@ -29,7 +28,8 @@ class RegistrationDatasourceImpl implements RegistrationDatasource {
   @override
   Future<void> deleteRegistration(int registrationId) async {
     try {
-      final response = await _dio.delete('/registration/delete/$registrationId');
+      final response =
+          await _dio.delete('/registration/delete/$registrationId');
       if (response.statusCode != 204) {
         throw Exception('Error al eliminar la inscripción');
       }

@@ -5,9 +5,11 @@ import 'package:oev_mobile_app/infrastructure/datasources/registration_datasourc
 class RegistrationRepositoryImpl implements RegistrationRepository {
   final RegistrationDatasource registrationDatasource;
 
-  RegistrationRepositoryImpl({RegistrationDatasource? registrationDatasource, required RegistrationDatasource dataSource})
+  RegistrationRepositoryImpl(
+      {RegistrationDatasource? registrationDatasource,
+      required RegistrationDatasource dataSource})
       : registrationDatasource =
-      registrationDatasource ?? RegistrationDatasourceImpl();
+            registrationDatasource ?? RegistrationDatasourceImpl();
 
   @override
   Future<void> createRegistration(int userId, int conferenceId) {
