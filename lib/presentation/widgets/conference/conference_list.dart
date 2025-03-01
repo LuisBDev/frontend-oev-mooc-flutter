@@ -148,11 +148,17 @@ class ConferenceList extends ConsumerWidget {
             Expanded(
               child: asyncConferences.when(
                 data: (conferences) {
+                  final loggedUser = ref.read(authProvider).token;
+                  final isAdmin = loggedUser?.role == 'ADMIN';
+
                   final filteredConferences = conferences
-                      .where((conference) => conference.name
-                          .toLowerCase()
-                          .contains(searchQuery.toLowerCase()))
+                      .where((conference) =>
+                          conference.name
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase()) &&
+                          (!isAdmin || conference.userId == loggedUser?.id))
                       .toList();
+
                   if (filteredConferences.isEmpty) {
                     return const Center(
                       child: Text(
@@ -185,28 +191,6 @@ class ConferenceList extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-
-        // Botón flotante en la parte inferior derecha
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: Visibility(
-            visible: isAdmin,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserConferencesScreen(),
-                  ),
-                );
-              },
-              label: const Text("Mis Conferencias"),
-              icon: const Icon(Icons.event_note),
-              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-            ),
-          ),
         ),
       ],
     );

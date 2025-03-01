@@ -4,6 +4,7 @@ import 'package:oev_mobile_app/domain/entities/conference/conference_model.dart'
 import 'package:oev_mobile_app/presentation/providers/conferences_providers/conferences_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/registration_providers/registration_provider.dart';
+import 'package:oev_mobile_app/presentation/screens/conference/conference_list_participants.dart';
 
 class ConferenceDetailPage extends ConsumerWidget {
   final int conferenceId;
@@ -36,7 +37,9 @@ class ConferenceDetailPage extends ConsumerWidget {
   Widget _buildCourseDetail(
       BuildContext context, WidgetRef ref, Conference conference) {
     final loggedUser = ref.read(authProvider).token;
-    final isVisible = loggedUser?.role == 'STUDENT' || loggedUser?.role == 'ADMINISTRATIVE' || loggedUser?.role == 'INSTRUCTOR';
+    final isVisible = loggedUser?.role == 'STUDENT' ||
+        loggedUser?.role == 'ADMINISTRATIVE' ||
+        loggedUser?.role == 'INSTRUCTOR';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -136,13 +139,44 @@ class ConferenceDetailPage extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: const Text(
                   'Inscribirse',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Botón de Ver Registrados
+          Visibility(
+            visible: !isVisible,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConferenceListParticipantsPage(
+                          conferenceId: conference.id),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Ver registrados',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
@@ -170,7 +204,8 @@ class ConferenceDetailPage extends ConsumerWidget {
                   color: Colors.white,
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold)),
-          content: const Text('¿Seguro que quieres registrarte en la conferencia?',
+          content: const Text(
+              '¿Seguro que quieres registrarte en la conferencia?',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.0,
