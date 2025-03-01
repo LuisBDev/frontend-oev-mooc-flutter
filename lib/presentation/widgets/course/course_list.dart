@@ -108,6 +108,25 @@ class CourseList extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Visibility(
+                    visible: loggedUser!.role == 'INSTRUCTOR',
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.push('/course/create');
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Text('Crear Curso'), Icon(Icons.add)],
+                        ),
+                      ),
+                    )),
+              ],
+            ),
+            const SizedBox(height: 5),
             if (selectedCategory != null)
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
